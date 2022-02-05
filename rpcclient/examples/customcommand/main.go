@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/MotoAcidic/eunod/eunojson"
+	"github.com/MotoAcidic/eunod/rpcclient"
 )
 
 // NameShowCmd defines the name_show JSON-RPC command.
@@ -76,9 +76,9 @@ func NameShow(c *rpcclient.Client, name string) (*NameShowResult, error) {
 
 func init() {
 	// No special flags for commands in this file.
-	flags := btcjson.UsageFlag(0)
+	flags := eunojson.UsageFlag(0)
 
-	btcjson.MustRegisterCmd("name_show", (*NameShowCmd)(nil), flags)
+	eunojson.MustRegisterCmd("name_show", (*NameShowCmd)(nil), flags)
 }
 
 func main() {

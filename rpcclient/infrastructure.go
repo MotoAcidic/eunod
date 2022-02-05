@@ -25,10 +25,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/go-socks/socks"
-	"github.com/btcsuite/websocket"
+	"github.com/MotoAcidic/eunod/eunojson"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/go-socks/socks"
+	"github.com/MotoAcidic/websocket"
 )
 
 var (
@@ -114,8 +114,8 @@ const (
 	// 0.19.0.
 	BitcoindPost19
 
-	// Btcd represents a catch-all btcd version.
-	Btcd
+	// Eunod represents a catch-all eunod version.
+	Eunod
 )
 
 // Client represents a Bitcoin RPC client which allows easy access to the
@@ -271,10 +271,10 @@ func (c *Client) trackRegisteredNtfns(cmd interface{}) {
 	defer c.ntfnStateLock.Unlock()
 
 	switch bcmd := cmd.(type) {
-	case *btcjson.NotifyBlocksCmd:
+	case *eunojson.NotifyBlocksCmd:
 		c.ntfnState.notifyBlocks = true
 
-	case *btcjson.NotifyNewTransactionsCmd:
+	case *eunojson.NotifyNewTransactionsCmd:
 		if bcmd.Verbose != nil && *bcmd.Verbose {
 			c.ntfnState.notifyNewTxVerbose = true
 		} else {
@@ -282,12 +282,12 @@ func (c *Client) trackRegisteredNtfns(cmd interface{}) {
 
 		}
 
-	case *btcjson.NotifySpentCmd:
+	case *eunojson.NotifySpentCmd:
 		for _, op := range bcmd.OutPoints {
 			c.ntfnState.notifySpent[op] = struct{}{}
 		}
 
-	case *btcjson.NotifyReceivedCmd:
+	case *eunojson.NotifyReceivedCmd:
 		for _, addr := range bcmd.Addresses {
 			c.ntfnState.notifyReceived[addr] = struct{}{}
 		}
@@ -323,7 +323,7 @@ func (r FutureGetBulkResult) Receive() (BulkResult, error) {
 // from a bulk json rpc api
 type IndividualBulkResult struct {
 	Result interface{}       `json:"result"`
-	Error  *btcjson.RPCError `json:"error"`
+	Error  *eunojson.RPCError `json:"error"`
 	Id     uint64            `json:"id"`
 }
 
@@ -350,7 +350,7 @@ type rawNotification struct {
 // to be valid (according to JSON-RPC 1.0 spec), ID may not be nil.
 type rawResponse struct {
 	Result json.RawMessage   `json:"result"`
-	Error  *btcjson.RPCError `json:"error"`
+	Error  *eunojson.RPCError `json:"error"`
 }
 
 // Response is the raw bytes of a JSON-RPC result, or the error if the response
@@ -361,7 +361,7 @@ type Response struct {
 }
 
 // result checks whether the unmarshaled response contains a non-nil error,
-// returning an unmarshaled btcjson.RPCError (or an unmarshaling error) if so.
+// returning an unmarshaled eunojson.RPCError (or an unmarshaling error) if so.
 // If the response is not an error, the raw bytes of the request are
 // returned for further unmashaling into specific result types.
 func (r rawResponse) result() (result []byte, err error) {
@@ -593,7 +593,7 @@ func (c *Client) reregisterNtfns() error {
 	// outpoints in one command if needed.
 	nslen := len(stateCopy.notifySpent)
 	if nslen > 0 {
-		outpoints := make([]btcjson.OutPoint, 0, nslen)
+		outpoints := make([]eunojson.OutPoint, 0, nslen)
 		for op := range stateCopy.notifySpent {
 			outpoints = append(outpoints, op)
 		}
@@ -965,19 +965,19 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 // future.  It handles both websocket and HTTP POST mode depending on the
 // configuration of the client.
 func (c *Client) SendCmd(cmd interface{}) chan *Response {
-	rpcVersion := btcjson.RpcVersion1
+	rpcVersion := eunojson.RpcVersion1
 	if c.batch {
-		rpcVersion = btcjson.RpcVersion2
+		rpcVersion = eunojson.RpcVersion2
 	}
 	// Get the method associated with the command.
-	method, err := btcjson.CmdMethod(cmd)
+	method, err := eunojson.CmdMethod(cmd)
 	if err != nil {
 		return newFutureError(err)
 	}
 
 	// Marshal the command.
 	id := c.NextID()
-	marshalledJSON, err := btcjson.MarshalCmd(rpcVersion, id, cmd)
+	marshalledJSON, err := eunojson.MarshalCmd(rpcVersion, id, cmd)
 	if err != nil {
 		return newFutureError(err)
 	}
@@ -1467,7 +1467,7 @@ func New(config *ConnConfig, ntfnHandlers *NotificationHandlers) (*Client, error
 // Batch is a factory that creates a client able to interact with the server using
 // JSON-RPC 2.0. The client is capable of accepting an arbitrary number of requests
 // and having the server process the all at the same time. It's compatible with both
-// btcd and bitcoind
+// eunod and bitcoind
 func NewBatch(config *ConnConfig) (*Client, error) {
 	if !config.HTTPPostMode {
 		return nil, errors.New("http post mode is required to use batch client")
@@ -1581,27 +1581,27 @@ func (c *Client) BackendVersion() (BackendVersion, error) {
 
 	// We'll start by calling GetInfo. This method doesn't exist for
 	// bitcoind nodes as of v0.16.0, so we'll assume the client is connected
-	// to a btcd backend if it does exist.
+	// to a eunod backend if it does exist.
 	info, err := c.GetInfo()
 
 	switch err := err.(type) {
-	// Parse the btcd version and cache it.
+	// Parse the eunod version and cache it.
 	case nil:
-		log.Debugf("Detected btcd version: %v", info.Version)
-		version := Btcd
+		log.Debugf("Detected eunod version: %v", info.Version)
+		version := Eunod
 		c.backendVersion = &version
 		return *c.backendVersion, nil
 
 	// Inspect the RPC error to ensure the method was not found, otherwise
 	// we actually ran into an error.
-	case *btcjson.RPCError:
-		if err.Code != btcjson.ErrRPCMethodNotFound.Code {
-			return 0, fmt.Errorf("unable to detect btcd version: "+
+	case *eunojson.RPCError:
+		if err.Code != eunojson.ErrRPCMethodNotFound.Code {
+			return 0, fmt.Errorf("unable to detect eunod version: "+
 				"%v", err)
 		}
 
 	default:
-		return 0, fmt.Errorf("unable to detect btcd version: %v", err)
+		return 0, fmt.Errorf("unable to detect eunod version: %v", err)
 	}
 
 	// Since the GetInfo method was not found, we assume the client is

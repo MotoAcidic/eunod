@@ -7,8 +7,8 @@ package main
 import (
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/database"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/database"
 )
 
 // headersCmd defines the configuration options for the loadheaders command.

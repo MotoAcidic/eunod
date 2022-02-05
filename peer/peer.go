@@ -18,11 +18,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/btcsuite/btcd/blockchain"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/go-socks/socks"
+	"github.com/MotoAcidic/eunod/blockchain"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/go-socks/socks"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/decred/dcrd/lru"
 )

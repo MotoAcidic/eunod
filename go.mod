@@ -1,13 +1,13 @@
-module github.com/btcsuite/btcd
+module github.com/MotoAcidic/eunod
 
 require (
-	github.com/btcsuite/btcd/btcec/v2 v2.1.0
-	github.com/btcsuite/btcd/btcutil v1.0.0
-	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
-	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd
-	github.com/btcsuite/goleveldb v1.0.0
-	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
-	github.com/btcsuite/winsvc v1.0.0
+	github.com/MotoAcidic/eunod/eunoec/v2 v2.1.0
+	github.com/MotoAcidic/eunod/eunoutil v1.0.0
+	github.com/MotoAcidic/eunolog v0.0.0-20170628155309-84c8d2346e9f
+	github.com/MotoAcidic/go-socks v0.0.0-20170105172521-4720035b7bfd
+	github.com/MotoAcidic/goleveldb v1.0.0
+	github.com/MotoAcidic/websocket v0.0.0-20150119174127-31079b680792
+	github.com/MotoAcidic/winsvc v1.0.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/decred/dcrd/lru v1.0.0
 	github.com/jessevdk/go-flags v1.4.0
@@ -17,13 +17,13 @@ require (
 
 require (
 	github.com/aead/siphash v1.0.1 // indirect
-	github.com/btcsuite/snappy-go v1.0.0 // indirect
+	github.com/MotoAcidic/snappy-go v1.0.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/kkdai/bstream v0.0.0-20161212061736-f391b8402d23 // indirect
 )
 
-replace github.com/btcsuite/btcd/btcutil => ./btcutil
+replace github.com/MotoAcidic/eunod/eunoutil => ./eunoutil
 
-replace github.com/btcsuite/btcd/btcec/v2 => ./btcec
+replace github.com/MotoAcidic/eunod/eunoec/v2 => ./eunoec
 
 go 1.17

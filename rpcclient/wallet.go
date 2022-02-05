@@ -8,11 +8,11 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/MotoAcidic/eunod/eunojson"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunod/eunoutil"
 )
 
 // *****************************
@@ -26,14 +26,14 @@ type FutureGetTransactionResult chan *Response
 
 // Receive waits for the Response promised by the future and returns detailed
 // information about a wallet transaction.
-func (r FutureGetTransactionResult) Receive() (*btcjson.GetTransactionResult, error) {
+func (r FutureGetTransactionResult) Receive() (*eunojson.GetTransactionResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a gettransaction result object
-	var getTx btcjson.GetTransactionResult
+	var getTx eunojson.GetTransactionResult
 	err = json.Unmarshal(res, &getTx)
 	if err != nil {
 		return nil, err
@@ -53,14 +53,14 @@ func (c *Client) GetTransactionAsync(txHash *chainhash.Hash) FutureGetTransactio
 		hash = txHash.String()
 	}
 
-	cmd := btcjson.NewGetTransactionCmd(hash, nil)
+	cmd := eunojson.NewGetTransactionCmd(hash, nil)
 	return c.SendCmd(cmd)
 }
 
 // GetTransaction returns detailed information about a wallet transaction.
 //
 // See GetRawTransaction to return the raw transaction instead.
-func (c *Client) GetTransaction(txHash *chainhash.Hash) (*btcjson.GetTransactionResult, error) {
+func (c *Client) GetTransaction(txHash *chainhash.Hash) (*eunojson.GetTransactionResult, error) {
 	return c.GetTransactionAsync(txHash).Receive()
 }
 
@@ -75,14 +75,14 @@ func (c *Client) GetTransactionWatchOnlyAsync(txHash *chainhash.Hash, watchOnly 
 		hash = txHash.String()
 	}
 
-	cmd := btcjson.NewGetTransactionCmd(hash, &watchOnly)
+	cmd := eunojson.NewGetTransactionCmd(hash, &watchOnly)
 	return c.SendCmd(cmd)
 }
 
 // GetTransactionWatchOnly returns detailed information about a wallet
 // transaction, and allow including watch-only addresses in balance
 // calculation and details.
-func (c *Client) GetTransactionWatchOnly(txHash *chainhash.Hash, watchOnly bool) (*btcjson.GetTransactionResult, error) {
+func (c *Client) GetTransactionWatchOnly(txHash *chainhash.Hash, watchOnly bool) (*eunojson.GetTransactionResult, error) {
 	return c.GetTransactionWatchOnlyAsync(txHash, watchOnly).Receive()
 }
 
@@ -93,14 +93,14 @@ type FutureListTransactionsResult chan *Response
 
 // Receive waits for the Response promised by the future and returns a list of
 // the most recent transactions.
-func (r FutureListTransactionsResult) Receive() ([]btcjson.ListTransactionsResult, error) {
+func (r FutureListTransactionsResult) Receive() ([]eunojson.ListTransactionsResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as an array of listtransaction result objects.
-	var transactions []btcjson.ListTransactionsResult
+	var transactions []eunojson.ListTransactionsResult
 	err = json.Unmarshal(res, &transactions)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (r FutureListTransactionsResult) Receive() ([]btcjson.ListTransactionsResul
 //
 // See ListTransactions for the blocking version and more details.
 func (c *Client) ListTransactionsAsync(account string) FutureListTransactionsResult {
-	cmd := btcjson.NewListTransactionsCmd(&account, nil, nil, nil)
+	cmd := eunojson.NewListTransactionsCmd(&account, nil, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -123,7 +123,7 @@ func (c *Client) ListTransactionsAsync(account string) FutureListTransactionsRes
 //
 // See the ListTransactionsCount and ListTransactionsCountFrom to control the
 // number of transactions returned and starting point, respectively.
-func (c *Client) ListTransactions(account string) ([]btcjson.ListTransactionsResult, error) {
+func (c *Client) ListTransactions(account string) ([]eunojson.ListTransactionsResult, error) {
 	return c.ListTransactionsAsync(account).Receive()
 }
 
@@ -133,7 +133,7 @@ func (c *Client) ListTransactions(account string) ([]btcjson.ListTransactionsRes
 //
 // See ListTransactionsCount for the blocking version and more details.
 func (c *Client) ListTransactionsCountAsync(account string, count int) FutureListTransactionsResult {
-	cmd := btcjson.NewListTransactionsCmd(&account, &count, nil, nil)
+	cmd := eunojson.NewListTransactionsCmd(&account, &count, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -142,7 +142,7 @@ func (c *Client) ListTransactionsCountAsync(account string, count int) FutureLis
 //
 // See the ListTransactions and ListTransactionsCountFrom functions for
 // different options.
-func (c *Client) ListTransactionsCount(account string, count int) ([]btcjson.ListTransactionsResult, error) {
+func (c *Client) ListTransactionsCount(account string, count int) ([]eunojson.ListTransactionsResult, error) {
 	return c.ListTransactionsCountAsync(account, count).Receive()
 }
 
@@ -152,7 +152,7 @@ func (c *Client) ListTransactionsCount(account string, count int) ([]btcjson.Lis
 //
 // See ListTransactionsCountFrom for the blocking version and more details.
 func (c *Client) ListTransactionsCountFromAsync(account string, count, from int) FutureListTransactionsResult {
-	cmd := btcjson.NewListTransactionsCmd(&account, &count, &from, nil)
+	cmd := eunojson.NewListTransactionsCmd(&account, &count, &from, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -160,7 +160,7 @@ func (c *Client) ListTransactionsCountFromAsync(account string, count, from int)
 // to the passed count while skipping the first 'from' transactions.
 //
 // See the ListTransactions and ListTransactionsCount functions to use defaults.
-func (c *Client) ListTransactionsCountFrom(account string, count, from int) ([]btcjson.ListTransactionsResult, error) {
+func (c *Client) ListTransactionsCountFrom(account string, count, from int) ([]eunojson.ListTransactionsResult, error) {
 	return c.ListTransactionsCountFromAsync(account, count, from).Receive()
 }
 
@@ -170,7 +170,7 @@ func (c *Client) ListTransactionsCountFrom(account string, count, from int) ([]b
 //
 // See ListTransactionsCountFromWatchOnly for the blocking version and more details.
 func (c *Client) ListTransactionsCountFromWatchOnlyAsync(account string, count, from int, watchOnly bool) FutureListTransactionsResult {
-	cmd := btcjson.NewListTransactionsCmd(&account, &count, &from, &watchOnly)
+	cmd := eunojson.NewListTransactionsCmd(&account, &count, &from, &watchOnly)
 	return c.SendCmd(cmd)
 }
 
@@ -179,7 +179,7 @@ func (c *Client) ListTransactionsCountFromWatchOnlyAsync(account string, count, 
 // exclude transactions from watch-only addresses based on the passed value for the watchOnly parameter
 //
 // See the ListTransactions and ListTransactionsCount functions to use defaults.
-func (c *Client) ListTransactionsCountFromWatchOnly(account string, count, from int, watchOnly bool) ([]btcjson.ListTransactionsResult, error) {
+func (c *Client) ListTransactionsCountFromWatchOnly(account string, count, from int, watchOnly bool) ([]eunojson.ListTransactionsResult, error) {
 	return c.ListTransactionsCountFromWatchOnlyAsync(account, count, from, watchOnly).Receive()
 }
 
@@ -193,14 +193,14 @@ type FutureListUnspentResult chan *Response
 // future wac returned by a call to ListUnspentMinAsync, ListUnspentMinMaxAsync,
 // or ListUnspentMinMaxAddressesAsync, the range may be limited by the
 // parameters of the RPC invocation.
-func (r FutureListUnspentResult) Receive() ([]btcjson.ListUnspentResult, error) {
+func (r FutureListUnspentResult) Receive() ([]eunojson.ListUnspentResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as an array of listunspent results.
-	var unspent []btcjson.ListUnspentResult
+	var unspent []eunojson.ListUnspentResult
 	err = json.Unmarshal(res, &unspent)
 	if err != nil {
 		return nil, err
@@ -215,7 +215,7 @@ func (r FutureListUnspentResult) Receive() ([]btcjson.ListUnspentResult, error) 
 //
 // See ListUnspent for the blocking version and more details.
 func (c *Client) ListUnspentAsync() FutureListUnspentResult {
-	cmd := btcjson.NewListUnspentCmd(nil, nil, nil)
+	cmd := eunojson.NewListUnspentCmd(nil, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -225,7 +225,7 @@ func (c *Client) ListUnspentAsync() FutureListUnspentResult {
 //
 // See ListUnspentMin for the blocking version and more details.
 func (c *Client) ListUnspentMinAsync(minConf int) FutureListUnspentResult {
-	cmd := btcjson.NewListUnspentCmd(&minConf, nil, nil)
+	cmd := eunojson.NewListUnspentCmd(&minConf, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -235,7 +235,7 @@ func (c *Client) ListUnspentMinAsync(minConf int) FutureListUnspentResult {
 //
 // See ListUnspentMinMax for the blocking version and more details.
 func (c *Client) ListUnspentMinMaxAsync(minConf, maxConf int) FutureListUnspentResult {
-	cmd := btcjson.NewListUnspentCmd(&minConf, &maxConf, nil)
+	cmd := eunojson.NewListUnspentCmd(&minConf, &maxConf, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -244,41 +244,41 @@ func (c *Client) ListUnspentMinMaxAsync(minConf, maxConf int) FutureListUnspentR
 // function on the returned instance.
 //
 // See ListUnspentMinMaxAddresses for the blocking version and more details.
-func (c *Client) ListUnspentMinMaxAddressesAsync(minConf, maxConf int, addrs []btcutil.Address) FutureListUnspentResult {
+func (c *Client) ListUnspentMinMaxAddressesAsync(minConf, maxConf int, addrs []eunoutil.Address) FutureListUnspentResult {
 	addrStrs := make([]string, 0, len(addrs))
 	for _, a := range addrs {
 		addrStrs = append(addrStrs, a.EncodeAddress())
 	}
 
-	cmd := btcjson.NewListUnspentCmd(&minConf, &maxConf, &addrStrs)
+	cmd := eunojson.NewListUnspentCmd(&minConf, &maxConf, &addrStrs)
 	return c.SendCmd(cmd)
 }
 
 // ListUnspent returns all unspent transaction outputs known to a wallet, using
 // the default number of minimum and maximum number of confirmations as a
 // filter (1 and 999999, respectively).
-func (c *Client) ListUnspent() ([]btcjson.ListUnspentResult, error) {
+func (c *Client) ListUnspent() ([]eunojson.ListUnspentResult, error) {
 	return c.ListUnspentAsync().Receive()
 }
 
 // ListUnspentMin returns all unspent transaction outputs known to a wallet,
 // using the specified number of minimum confirmations and default number of
 // maximum confirmations (999999) as a filter.
-func (c *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
+func (c *Client) ListUnspentMin(minConf int) ([]eunojson.ListUnspentResult, error) {
 	return c.ListUnspentMinAsync(minConf).Receive()
 }
 
 // ListUnspentMinMax returns all unspent transaction outputs known to a wallet,
 // using the specified number of minimum and maximum number of confirmations as
 // a filter.
-func (c *Client) ListUnspentMinMax(minConf, maxConf int) ([]btcjson.ListUnspentResult, error) {
+func (c *Client) ListUnspentMinMax(minConf, maxConf int) ([]eunojson.ListUnspentResult, error) {
 	return c.ListUnspentMinMaxAsync(minConf, maxConf).Receive()
 }
 
 // ListUnspentMinMaxAddresses returns all unspent transaction outputs that pay
 // to any of specified addresses in a wallet using the specified number of
 // minimum and maximum number of confirmations as a filter.
-func (c *Client) ListUnspentMinMaxAddresses(minConf, maxConf int, addrs []btcutil.Address) ([]btcjson.ListUnspentResult, error) {
+func (c *Client) ListUnspentMinMaxAddresses(minConf, maxConf int, addrs []eunoutil.Address) ([]eunojson.ListUnspentResult, error) {
 	return c.ListUnspentMinMaxAddressesAsync(minConf, maxConf, addrs).Receive()
 }
 
@@ -290,14 +290,14 @@ type FutureListSinceBlockResult chan *Response
 // Receive waits for the Response promised by the future and returns all
 // transactions added in blocks since the specified block hash, or all
 // transactions if it is nil.
-func (r FutureListSinceBlockResult) Receive() (*btcjson.ListSinceBlockResult, error) {
+func (r FutureListSinceBlockResult) Receive() (*eunojson.ListSinceBlockResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a listsinceblock result object.
-	var listResult btcjson.ListSinceBlockResult
+	var listResult eunojson.ListSinceBlockResult
 	err = json.Unmarshal(res, &listResult)
 	if err != nil {
 		return nil, err
@@ -314,10 +314,10 @@ func (r FutureListSinceBlockResult) Receive() (*btcjson.ListSinceBlockResult, er
 func (c *Client) ListSinceBlockAsync(blockHash *chainhash.Hash) FutureListSinceBlockResult {
 	var hash *string
 	if blockHash != nil {
-		hash = btcjson.String(blockHash.String())
+		hash = eunojson.String(blockHash.String())
 	}
 
-	cmd := btcjson.NewListSinceBlockCmd(hash, nil, nil)
+	cmd := eunojson.NewListSinceBlockCmd(hash, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -327,7 +327,7 @@ func (c *Client) ListSinceBlockAsync(blockHash *chainhash.Hash) FutureListSinceB
 //
 // See ListSinceBlockMinConf to override the minimum number of confirmations.
 // See ListSinceBlockMinConfWatchOnly to override the minimum number of confirmations and watch only parameter.
-func (c *Client) ListSinceBlock(blockHash *chainhash.Hash) (*btcjson.ListSinceBlockResult, error) {
+func (c *Client) ListSinceBlock(blockHash *chainhash.Hash) (*eunojson.ListSinceBlockResult, error) {
 	return c.ListSinceBlockAsync(blockHash).Receive()
 }
 
@@ -339,10 +339,10 @@ func (c *Client) ListSinceBlock(blockHash *chainhash.Hash) (*btcjson.ListSinceBl
 func (c *Client) ListSinceBlockMinConfAsync(blockHash *chainhash.Hash, minConfirms int) FutureListSinceBlockResult {
 	var hash *string
 	if blockHash != nil {
-		hash = btcjson.String(blockHash.String())
+		hash = eunojson.String(blockHash.String())
 	}
 
-	cmd := btcjson.NewListSinceBlockCmd(hash, &minConfirms, nil)
+	cmd := eunojson.NewListSinceBlockCmd(hash, &minConfirms, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -351,7 +351,7 @@ func (c *Client) ListSinceBlockMinConfAsync(blockHash *chainhash.Hash, minConfir
 // number of minimum confirmations as a filter.
 //
 // See ListSinceBlock to use the default minimum number of confirmations.
-func (c *Client) ListSinceBlockMinConf(blockHash *chainhash.Hash, minConfirms int) (*btcjson.ListSinceBlockResult, error) {
+func (c *Client) ListSinceBlockMinConf(blockHash *chainhash.Hash, minConfirms int) (*eunojson.ListSinceBlockResult, error) {
 	return c.ListSinceBlockMinConfAsync(blockHash, minConfirms).Receive()
 }
 
@@ -363,10 +363,10 @@ func (c *Client) ListSinceBlockMinConf(blockHash *chainhash.Hash, minConfirms in
 func (c *Client) ListSinceBlockMinConfWatchOnlyAsync(blockHash *chainhash.Hash, minConfirms int, watchOnly bool) FutureListSinceBlockResult {
 	var hash *string
 	if blockHash != nil {
-		hash = btcjson.String(blockHash.String())
+		hash = eunojson.String(blockHash.String())
 	}
 
-	cmd := btcjson.NewListSinceBlockCmd(hash, &minConfirms, &watchOnly)
+	cmd := eunojson.NewListSinceBlockCmd(hash, &minConfirms, &watchOnly)
 	return c.SendCmd(cmd)
 }
 
@@ -375,7 +375,7 @@ func (c *Client) ListSinceBlockMinConfWatchOnlyAsync(blockHash *chainhash.Hash, 
 // number of minimum confirmations as a filter.
 //
 // See ListSinceBlock to use the default minimum number of confirmations and default watch only parameter.
-func (c *Client) ListSinceBlockMinConfWatchOnly(blockHash *chainhash.Hash, minConfirms int, watchOnly bool) (*btcjson.ListSinceBlockResult, error) {
+func (c *Client) ListSinceBlockMinConfWatchOnly(blockHash *chainhash.Hash, minConfirms int, watchOnly bool) (*eunojson.ListSinceBlockResult, error) {
 	return c.ListSinceBlockMinConfWatchOnlyAsync(blockHash, minConfirms, watchOnly).Receive()
 }
 
@@ -400,14 +400,14 @@ func (r FutureLockUnspentResult) Receive() error {
 //
 // See LockUnspent for the blocking version and more details.
 func (c *Client) LockUnspentAsync(unlock bool, ops []*wire.OutPoint) FutureLockUnspentResult {
-	outputs := make([]btcjson.TransactionInput, len(ops))
+	outputs := make([]eunojson.TransactionInput, len(ops))
 	for i, op := range ops {
-		outputs[i] = btcjson.TransactionInput{
+		outputs[i] = eunojson.TransactionInput{
 			Txid: op.Hash.String(),
 			Vout: op.Index,
 		}
 	}
-	cmd := btcjson.NewLockUnspentCmd(unlock, outputs)
+	cmd := eunojson.NewLockUnspentCmd(unlock, outputs)
 	return c.SendCmd(cmd)
 }
 
@@ -445,7 +445,7 @@ func (r FutureListLockUnspentResult) Receive() ([]*wire.OutPoint, error) {
 	}
 
 	// Unmarshal as an array of transaction inputs.
-	var inputs []btcjson.TransactionInput
+	var inputs []eunojson.TransactionInput
 	err = json.Unmarshal(res, &inputs)
 	if err != nil {
 		return nil, err
@@ -470,7 +470,7 @@ func (r FutureListLockUnspentResult) Receive() ([]*wire.OutPoint, error) {
 //
 // See ListLockUnspent for the blocking version and more details.
 func (c *Client) ListLockUnspentAsync() FutureListLockUnspentResult {
-	cmd := btcjson.NewListLockUnspentCmd()
+	cmd := eunojson.NewListLockUnspentCmd()
 	return c.SendCmd(cmd)
 }
 
@@ -498,14 +498,14 @@ func (r FutureSetTxFeeResult) Receive() error {
 // returned instance.
 //
 // See SetTxFee for the blocking version and more details.
-func (c *Client) SetTxFeeAsync(fee btcutil.Amount) FutureSetTxFeeResult {
-	cmd := btcjson.NewSetTxFeeCmd(fee.ToBTC())
+func (c *Client) SetTxFeeAsync(fee eunoutil.Amount) FutureSetTxFeeResult {
+	cmd := eunojson.NewSetTxFeeCmd(fee.ToEUNO())
 	return c.SendCmd(cmd)
 }
 
 // SetTxFee sets an optional transaction fee per KB that helps ensure
 // transactions are processed quickly.  Most transaction are 1KB.
-func (c *Client) SetTxFee(fee btcutil.Amount) error {
+func (c *Client) SetTxFee(fee eunoutil.Amount) error {
 	return c.SetTxFeeAsync(fee).Receive()
 }
 
@@ -536,9 +536,9 @@ func (r FutureSendToAddressResult) Receive() (*chainhash.Hash, error) {
 // returned instance.
 //
 // See SendToAddress for the blocking version and more details.
-func (c *Client) SendToAddressAsync(address btcutil.Address, amount btcutil.Amount) FutureSendToAddressResult {
+func (c *Client) SendToAddressAsync(address eunoutil.Address, amount eunoutil.Amount) FutureSendToAddressResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewSendToAddressCmd(addr, amount.ToBTC(), nil, nil)
+	cmd := eunojson.NewSendToAddressCmd(addr, amount.ToEUNO(), nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -550,7 +550,7 @@ func (c *Client) SendToAddressAsync(address btcutil.Address, amount btcutil.Amou
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendToAddress(address btcutil.Address, amount btcutil.Amount) (*chainhash.Hash, error) {
+func (c *Client) SendToAddress(address eunoutil.Address, amount eunoutil.Amount) (*chainhash.Hash, error) {
 	return c.SendToAddressAsync(address, amount).Receive()
 }
 
@@ -559,12 +559,12 @@ func (c *Client) SendToAddress(address btcutil.Address, amount btcutil.Amount) (
 // function on the returned instance.
 //
 // See SendToAddressComment for the blocking version and more details.
-func (c *Client) SendToAddressCommentAsync(address btcutil.Address,
-	amount btcutil.Amount, comment,
+func (c *Client) SendToAddressCommentAsync(address eunoutil.Address,
+	amount eunoutil.Amount, comment,
 	commentTo string) FutureSendToAddressResult {
 
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewSendToAddressCmd(addr, amount.ToBTC(), &comment,
+	cmd := eunojson.NewSendToAddressCmd(addr, amount.ToEUNO(), &comment,
 		&commentTo)
 	return c.SendCmd(cmd)
 }
@@ -581,7 +581,7 @@ func (c *Client) SendToAddressCommentAsync(address btcutil.Address,
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendToAddressComment(address btcutil.Address, amount btcutil.Amount, comment, commentTo string) (*chainhash.Hash, error) {
+func (c *Client) SendToAddressComment(address eunoutil.Address, amount eunoutil.Amount, comment, commentTo string) (*chainhash.Hash, error) {
 	return c.SendToAddressCommentAsync(address, amount, comment,
 		commentTo).Receive()
 }
@@ -615,9 +615,9 @@ func (r FutureSendFromResult) Receive() (*chainhash.Hash, error) {
 // returned instance.
 //
 // See SendFrom for the blocking version and more details.
-func (c *Client) SendFromAsync(fromAccount string, toAddress btcutil.Address, amount btcutil.Amount) FutureSendFromResult {
+func (c *Client) SendFromAsync(fromAccount string, toAddress eunoutil.Address, amount eunoutil.Amount) FutureSendFromResult {
 	addr := toAddress.EncodeAddress()
-	cmd := btcjson.NewSendFromCmd(fromAccount, addr, amount.ToBTC(), nil,
+	cmd := eunojson.NewSendFromCmd(fromAccount, addr, amount.ToEUNO(), nil,
 		nil, nil)
 	return c.SendCmd(cmd)
 }
@@ -630,7 +630,7 @@ func (c *Client) SendFromAsync(fromAccount string, toAddress btcutil.Address, am
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendFrom(fromAccount string, toAddress btcutil.Address, amount btcutil.Amount) (*chainhash.Hash, error) {
+func (c *Client) SendFrom(fromAccount string, toAddress eunoutil.Address, amount eunoutil.Amount) (*chainhash.Hash, error) {
 	return c.SendFromAsync(fromAccount, toAddress, amount).Receive()
 }
 
@@ -639,9 +639,9 @@ func (c *Client) SendFrom(fromAccount string, toAddress btcutil.Address, amount 
 // the returned instance.
 //
 // See SendFromMinConf for the blocking version and more details.
-func (c *Client) SendFromMinConfAsync(fromAccount string, toAddress btcutil.Address, amount btcutil.Amount, minConfirms int) FutureSendFromResult {
+func (c *Client) SendFromMinConfAsync(fromAccount string, toAddress eunoutil.Address, amount eunoutil.Amount, minConfirms int) FutureSendFromResult {
 	addr := toAddress.EncodeAddress()
-	cmd := btcjson.NewSendFromCmd(fromAccount, addr, amount.ToBTC(),
+	cmd := eunojson.NewSendFromCmd(fromAccount, addr, amount.ToEUNO(),
 		&minConfirms, nil, nil)
 	return c.SendCmd(cmd)
 }
@@ -655,7 +655,7 @@ func (c *Client) SendFromMinConfAsync(fromAccount string, toAddress btcutil.Addr
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendFromMinConf(fromAccount string, toAddress btcutil.Address, amount btcutil.Amount, minConfirms int) (*chainhash.Hash, error) {
+func (c *Client) SendFromMinConf(fromAccount string, toAddress eunoutil.Address, amount eunoutil.Amount, minConfirms int) (*chainhash.Hash, error) {
 	return c.SendFromMinConfAsync(fromAccount, toAddress, amount,
 		minConfirms).Receive()
 }
@@ -666,11 +666,11 @@ func (c *Client) SendFromMinConf(fromAccount string, toAddress btcutil.Address, 
 //
 // See SendFromComment for the blocking version and more details.
 func (c *Client) SendFromCommentAsync(fromAccount string,
-	toAddress btcutil.Address, amount btcutil.Amount, minConfirms int,
+	toAddress eunoutil.Address, amount eunoutil.Amount, minConfirms int,
 	comment, commentTo string) FutureSendFromResult {
 
 	addr := toAddress.EncodeAddress()
-	cmd := btcjson.NewSendFromCmd(fromAccount, addr, amount.ToBTC(),
+	cmd := eunojson.NewSendFromCmd(fromAccount, addr, amount.ToEUNO(),
 		&minConfirms, &comment, &commentTo)
 	return c.SendCmd(cmd)
 }
@@ -686,8 +686,8 @@ func (c *Client) SendFromCommentAsync(fromAccount string,
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendFromComment(fromAccount string, toAddress btcutil.Address,
-	amount btcutil.Amount, minConfirms int,
+func (c *Client) SendFromComment(fromAccount string, toAddress eunoutil.Address,
+	amount eunoutil.Amount, minConfirms int,
 	comment, commentTo string) (*chainhash.Hash, error) {
 
 	return c.SendFromCommentAsync(fromAccount, toAddress, amount,
@@ -723,12 +723,12 @@ func (r FutureSendManyResult) Receive() (*chainhash.Hash, error) {
 // returned instance.
 //
 // See SendMany for the blocking version and more details.
-func (c *Client) SendManyAsync(fromAccount string, amounts map[btcutil.Address]btcutil.Amount) FutureSendManyResult {
+func (c *Client) SendManyAsync(fromAccount string, amounts map[eunoutil.Address]eunoutil.Amount) FutureSendManyResult {
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
-		convertedAmounts[addr.EncodeAddress()] = amount.ToBTC()
+		convertedAmounts[addr.EncodeAddress()] = amount.ToEUNO()
 	}
-	cmd := btcjson.NewSendManyCmd(fromAccount, convertedAmounts, nil, nil)
+	cmd := eunojson.NewSendManyCmd(fromAccount, convertedAmounts, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -740,7 +740,7 @@ func (c *Client) SendManyAsync(fromAccount string, amounts map[btcutil.Address]b
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendMany(fromAccount string, amounts map[btcutil.Address]btcutil.Amount) (*chainhash.Hash, error) {
+func (c *Client) SendMany(fromAccount string, amounts map[eunoutil.Address]eunoutil.Amount) (*chainhash.Hash, error) {
 	return c.SendManyAsync(fromAccount, amounts).Receive()
 }
 
@@ -750,14 +750,14 @@ func (c *Client) SendMany(fromAccount string, amounts map[btcutil.Address]btcuti
 //
 // See SendManyMinConf for the blocking version and more details.
 func (c *Client) SendManyMinConfAsync(fromAccount string,
-	amounts map[btcutil.Address]btcutil.Amount,
+	amounts map[eunoutil.Address]eunoutil.Amount,
 	minConfirms int) FutureSendManyResult {
 
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
-		convertedAmounts[addr.EncodeAddress()] = amount.ToBTC()
+		convertedAmounts[addr.EncodeAddress()] = amount.ToEUNO()
 	}
-	cmd := btcjson.NewSendManyCmd(fromAccount, convertedAmounts,
+	cmd := eunojson.NewSendManyCmd(fromAccount, convertedAmounts,
 		&minConfirms, nil)
 	return c.SendCmd(cmd)
 }
@@ -772,7 +772,7 @@ func (c *Client) SendManyMinConfAsync(fromAccount string,
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
 func (c *Client) SendManyMinConf(fromAccount string,
-	amounts map[btcutil.Address]btcutil.Amount,
+	amounts map[eunoutil.Address]eunoutil.Amount,
 	minConfirms int) (*chainhash.Hash, error) {
 
 	return c.SendManyMinConfAsync(fromAccount, amounts, minConfirms).Receive()
@@ -784,14 +784,14 @@ func (c *Client) SendManyMinConf(fromAccount string,
 //
 // See SendManyComment for the blocking version and more details.
 func (c *Client) SendManyCommentAsync(fromAccount string,
-	amounts map[btcutil.Address]btcutil.Amount, minConfirms int,
+	amounts map[eunoutil.Address]eunoutil.Amount, minConfirms int,
 	comment string) FutureSendManyResult {
 
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
-		convertedAmounts[addr.EncodeAddress()] = amount.ToBTC()
+		convertedAmounts[addr.EncodeAddress()] = amount.ToEUNO()
 	}
-	cmd := btcjson.NewSendManyCmd(fromAccount, convertedAmounts,
+	cmd := eunojson.NewSendManyCmd(fromAccount, convertedAmounts,
 		&minConfirms, &comment)
 	return c.SendCmd(cmd)
 }
@@ -807,7 +807,7 @@ func (c *Client) SendManyCommentAsync(fromAccount string,
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
 func (c *Client) SendManyComment(fromAccount string,
-	amounts map[btcutil.Address]btcutil.Amount, minConfirms int,
+	amounts map[eunoutil.Address]eunoutil.Amount, minConfirms int,
 	comment string) (*chainhash.Hash, error) {
 
 	return c.SendManyCommentAsync(fromAccount, amounts, minConfirms,
@@ -828,7 +828,7 @@ type FutureAddMultisigAddressResult struct {
 // Receive waits for the Response promised by the future and returns the
 // multisignature address that requires the specified number of signatures for
 // the provided addresses.
-func (r FutureAddMultisigAddressResult) Receive() (btcutil.Address, error) {
+func (r FutureAddMultisigAddressResult) Receive() (eunoutil.Address, error) {
 	res, err := ReceiveFuture(r.responseChannel)
 	if err != nil {
 		return nil, err
@@ -841,7 +841,7 @@ func (r FutureAddMultisigAddressResult) Receive() (btcutil.Address, error) {
 		return nil, err
 	}
 
-	return btcutil.DecodeAddress(addr, r.network)
+	return eunoutil.DecodeAddress(addr, r.network)
 }
 
 // AddMultisigAddressAsync returns an instance of a type that can be used to get
@@ -849,13 +849,13 @@ func (r FutureAddMultisigAddressResult) Receive() (btcutil.Address, error) {
 // the returned instance.
 //
 // See AddMultisigAddress for the blocking version and more details.
-func (c *Client) AddMultisigAddressAsync(requiredSigs int, addresses []btcutil.Address, account string) FutureAddMultisigAddressResult {
+func (c *Client) AddMultisigAddressAsync(requiredSigs int, addresses []eunoutil.Address, account string) FutureAddMultisigAddressResult {
 	addrs := make([]string, 0, len(addresses))
 	for _, addr := range addresses {
 		addrs = append(addrs, addr.String())
 	}
 
-	cmd := btcjson.NewAddMultisigAddressCmd(requiredSigs, addrs, &account)
+	cmd := eunojson.NewAddMultisigAddressCmd(requiredSigs, addrs, &account)
 	result := FutureAddMultisigAddressResult{
 		network:         c.chainParams,
 		responseChannel: c.SendCmd(cmd),
@@ -865,7 +865,7 @@ func (c *Client) AddMultisigAddressAsync(requiredSigs int, addresses []btcutil.A
 
 // AddMultisigAddress adds a multisignature address that requires the specified
 // number of signatures for the provided addresses to the wallet.
-func (c *Client) AddMultisigAddress(requiredSigs int, addresses []btcutil.Address, account string) (btcutil.Address, error) {
+func (c *Client) AddMultisigAddress(requiredSigs int, addresses []eunoutil.Address, account string) (eunoutil.Address, error) {
 	return c.AddMultisigAddressAsync(requiredSigs, addresses, account).Receive()
 }
 
@@ -875,14 +875,14 @@ type FutureCreateMultisigResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the
 // multisignature address and script needed to redeem it.
-func (r FutureCreateMultisigResult) Receive() (*btcjson.CreateMultiSigResult, error) {
+func (r FutureCreateMultisigResult) Receive() (*eunojson.CreateMultiSigResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a createmultisig result object.
-	var multisigRes btcjson.CreateMultiSigResult
+	var multisigRes eunojson.CreateMultiSigResult
 	err = json.Unmarshal(res, &multisigRes)
 	if err != nil {
 		return nil, err
@@ -896,20 +896,20 @@ func (r FutureCreateMultisigResult) Receive() (*btcjson.CreateMultiSigResult, er
 // the returned instance.
 //
 // See CreateMultisig for the blocking version and more details.
-func (c *Client) CreateMultisigAsync(requiredSigs int, addresses []btcutil.Address) FutureCreateMultisigResult {
+func (c *Client) CreateMultisigAsync(requiredSigs int, addresses []eunoutil.Address) FutureCreateMultisigResult {
 	addrs := make([]string, 0, len(addresses))
 	for _, addr := range addresses {
 		addrs = append(addrs, addr.String())
 	}
 
-	cmd := btcjson.NewCreateMultisigCmd(requiredSigs, addrs)
+	cmd := eunojson.NewCreateMultisigCmd(requiredSigs, addrs)
 	return c.SendCmd(cmd)
 }
 
 // CreateMultisig creates a multisignature address that requires the specified
 // number of signatures for the provided addresses and returns the
 // multisignature address and script needed to redeem it.
-func (c *Client) CreateMultisig(requiredSigs int, addresses []btcutil.Address) (*btcjson.CreateMultiSigResult, error) {
+func (c *Client) CreateMultisig(requiredSigs int, addresses []eunoutil.Address) (*eunojson.CreateMultiSigResult, error) {
 	return c.CreateMultisigAsync(requiredSigs, addresses).Receive()
 }
 
@@ -930,7 +930,7 @@ func (r FutureCreateNewAccountResult) Receive() error {
 //
 // See CreateNewAccount for the blocking version and more details.
 func (c *Client) CreateNewAccountAsync(account string) FutureCreateNewAccountResult {
-	cmd := btcjson.NewCreateNewAccountCmd(account)
+	cmd := eunojson.NewCreateNewAccountCmd(account)
 	return c.SendCmd(cmd)
 }
 
@@ -945,13 +945,13 @@ type FutureCreateWalletResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the
 // result of creating a new wallet.
-func (r FutureCreateWalletResult) Receive() (*btcjson.CreateWalletResult, error) {
+func (r FutureCreateWalletResult) Receive() (*eunojson.CreateWalletResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var createWalletResult btcjson.CreateWalletResult
+	var createWalletResult eunojson.CreateWalletResult
 	err = json.Unmarshal(res, &createWalletResult)
 	if err != nil {
 		return nil, err
@@ -961,37 +961,37 @@ func (r FutureCreateWalletResult) Receive() (*btcjson.CreateWalletResult, error)
 
 // CreateWalletOpt defines a functional-option to be used with CreateWallet
 // method.
-type CreateWalletOpt func(*btcjson.CreateWalletCmd)
+type CreateWalletOpt func(*eunojson.CreateWalletCmd)
 
 // WithCreateWalletDisablePrivateKeys disables the possibility of private keys
 // to be used with a wallet created using the CreateWallet method. Using this
 // option will make the wallet watch-only.
 func WithCreateWalletDisablePrivateKeys() CreateWalletOpt {
-	return func(c *btcjson.CreateWalletCmd) {
-		c.DisablePrivateKeys = btcjson.Bool(true)
+	return func(c *eunojson.CreateWalletCmd) {
+		c.DisablePrivateKeys = eunojson.Bool(true)
 	}
 }
 
 // WithCreateWalletBlank specifies creation of a blank wallet.
 func WithCreateWalletBlank() CreateWalletOpt {
-	return func(c *btcjson.CreateWalletCmd) {
-		c.Blank = btcjson.Bool(true)
+	return func(c *eunojson.CreateWalletCmd) {
+		c.Blank = eunojson.Bool(true)
 	}
 }
 
 // WithCreateWalletPassphrase specifies a passphrase to encrypt the wallet
 // with.
 func WithCreateWalletPassphrase(value string) CreateWalletOpt {
-	return func(c *btcjson.CreateWalletCmd) {
-		c.Passphrase = btcjson.String(value)
+	return func(c *eunojson.CreateWalletCmd) {
+		c.Passphrase = eunojson.String(value)
 	}
 }
 
 // WithCreateWalletAvoidReuse specifies keeping track of coin reuse, and
 // treat dirty and clean coins differently with privacy considerations in mind.
 func WithCreateWalletAvoidReuse() CreateWalletOpt {
-	return func(c *btcjson.CreateWalletCmd) {
-		c.AvoidReuse = btcjson.Bool(true)
+	return func(c *eunojson.CreateWalletCmd) {
+		c.AvoidReuse = eunojson.Bool(true)
 	}
 }
 
@@ -1001,7 +1001,7 @@ func WithCreateWalletAvoidReuse() CreateWalletOpt {
 //
 // See CreateWallet for the blocking version and more details.
 func (c *Client) CreateWalletAsync(name string, opts ...CreateWalletOpt) FutureCreateWalletResult {
-	cmd := btcjson.NewCreateWalletCmd(name, nil, nil, nil, nil)
+	cmd := eunojson.NewCreateWalletCmd(name, nil, nil, nil, nil)
 
 	// Apply each specified option to mutate the default command.
 	for _, opt := range opts {
@@ -1020,7 +1020,7 @@ func (c *Client) CreateWalletAsync(name string, opts ...CreateWalletOpt) FutureC
 //   * WithCreateWalletBlank
 //   * WithCreateWalletPassphrase
 //   * WithCreateWalletAvoidReuse
-func (c *Client) CreateWallet(name string, opts ...CreateWalletOpt) (*btcjson.CreateWalletResult, error) {
+func (c *Client) CreateWallet(name string, opts ...CreateWalletOpt) (*eunojson.CreateWalletResult, error) {
 	return c.CreateWalletAsync(name, opts...).Receive()
 }
 
@@ -1030,13 +1030,13 @@ type FutureGetAddressInfoResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the information
 // about the given bitcoin address.
-func (r FutureGetAddressInfoResult) Receive() (*btcjson.GetAddressInfoResult, error) {
+func (r FutureGetAddressInfoResult) Receive() (*eunojson.GetAddressInfoResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var getAddressInfoResult btcjson.GetAddressInfoResult
+	var getAddressInfoResult eunojson.GetAddressInfoResult
 	err = json.Unmarshal(res, &getAddressInfoResult)
 	if err != nil {
 		return nil, err
@@ -1050,12 +1050,12 @@ func (r FutureGetAddressInfoResult) Receive() (*btcjson.GetAddressInfoResult, er
 //
 // See GetAddressInfo for the blocking version and more details.
 func (c *Client) GetAddressInfoAsync(address string) FutureGetAddressInfoResult {
-	cmd := btcjson.NewGetAddressInfoCmd(address)
+	cmd := eunojson.NewGetAddressInfoCmd(address)
 	return c.SendCmd(cmd)
 }
 
 // GetAddressInfo returns information about the given bitcoin address.
-func (c *Client) GetAddressInfo(address string) (*btcjson.GetAddressInfoResult, error) {
+func (c *Client) GetAddressInfo(address string) (*eunojson.GetAddressInfoResult, error) {
 	return c.GetAddressInfoAsync(address).Receive()
 }
 
@@ -1068,7 +1068,7 @@ type FutureGetNewAddressResult struct {
 
 // Receive waits for the Response promised by the future and returns a new
 // address.
-func (r FutureGetNewAddressResult) Receive() (btcutil.Address, error) {
+func (r FutureGetNewAddressResult) Receive() (eunoutil.Address, error) {
 	res, err := ReceiveFuture(r.responseChannel)
 	if err != nil {
 		return nil, err
@@ -1081,7 +1081,7 @@ func (r FutureGetNewAddressResult) Receive() (btcutil.Address, error) {
 		return nil, err
 	}
 
-	return btcutil.DecodeAddress(addr, r.network)
+	return eunoutil.DecodeAddress(addr, r.network)
 }
 
 // GetNewAddressAsync returns an instance of a type that can be used to get the
@@ -1090,7 +1090,7 @@ func (r FutureGetNewAddressResult) Receive() (btcutil.Address, error) {
 //
 // See GetNewAddress for the blocking version and more details.
 func (c *Client) GetNewAddressAsync(account string) FutureGetNewAddressResult {
-	cmd := btcjson.NewGetNewAddressCmd(&account)
+	cmd := eunojson.NewGetNewAddressCmd(&account)
 	result := FutureGetNewAddressResult{
 		network:         c.chainParams,
 		responseChannel: c.SendCmd(cmd),
@@ -1100,7 +1100,7 @@ func (c *Client) GetNewAddressAsync(account string) FutureGetNewAddressResult {
 
 // GetNewAddress returns a new address, and decodes based on the client's
 // chain params.
-func (c *Client) GetNewAddress(account string) (btcutil.Address, error) {
+func (c *Client) GetNewAddress(account string) (eunoutil.Address, error) {
 	return c.GetNewAddressAsync(account).Receive()
 }
 
@@ -1114,7 +1114,7 @@ type FutureGetRawChangeAddressResult struct {
 // Receive waits for the Response promised by the future and returns a new
 // address for receiving change that will be associated with the provided
 // account.  Note that this is only for raw transactions and NOT for normal use.
-func (r FutureGetRawChangeAddressResult) Receive() (btcutil.Address, error) {
+func (r FutureGetRawChangeAddressResult) Receive() (eunoutil.Address, error) {
 	res, err := ReceiveFuture(r.responseChannel)
 	if err != nil {
 		return nil, err
@@ -1127,7 +1127,7 @@ func (r FutureGetRawChangeAddressResult) Receive() (btcutil.Address, error) {
 		return nil, err
 	}
 
-	return btcutil.DecodeAddress(addr, r.network)
+	return eunoutil.DecodeAddress(addr, r.network)
 }
 
 // GetRawChangeAddressAsync returns an instance of a type that can be used to
@@ -1136,7 +1136,7 @@ func (r FutureGetRawChangeAddressResult) Receive() (btcutil.Address, error) {
 //
 // See GetRawChangeAddress for the blocking version and more details.
 func (c *Client) GetRawChangeAddressAsync(account string) FutureGetRawChangeAddressResult {
-	cmd := btcjson.NewGetRawChangeAddressCmd(&account)
+	cmd := eunojson.NewGetRawChangeAddressCmd(&account)
 	result := FutureGetRawChangeAddressResult{
 		network:         c.chainParams,
 		responseChannel: c.SendCmd(cmd),
@@ -1147,7 +1147,7 @@ func (c *Client) GetRawChangeAddressAsync(account string) FutureGetRawChangeAddr
 // GetRawChangeAddress returns a new address for receiving change that will be
 // associated with the provided account.  Note that this is only for raw
 // transactions and NOT for normal use.
-func (c *Client) GetRawChangeAddress(account string) (btcutil.Address, error) {
+func (c *Client) GetRawChangeAddress(account string) (eunoutil.Address, error) {
 	return c.GetRawChangeAddressAsync(account).Receive()
 }
 
@@ -1160,7 +1160,7 @@ type FutureAddWitnessAddressResult struct {
 
 // Receive waits for the Response promised by the future and returns the new
 // address.
-func (r FutureAddWitnessAddressResult) Receive() (btcutil.Address, error) {
+func (r FutureAddWitnessAddressResult) Receive() (eunoutil.Address, error) {
 	res, err := ReceiveFuture(r.responseChannel)
 	if err != nil {
 		return nil, err
@@ -1173,7 +1173,7 @@ func (r FutureAddWitnessAddressResult) Receive() (btcutil.Address, error) {
 		return nil, err
 	}
 
-	return btcutil.DecodeAddress(addr, r.network)
+	return eunoutil.DecodeAddress(addr, r.network)
 }
 
 // AddWitnessAddressAsync returns an instance of a type that can be used to get
@@ -1182,7 +1182,7 @@ func (r FutureAddWitnessAddressResult) Receive() (btcutil.Address, error) {
 //
 // See AddWitnessAddress for the blocking version and more details.
 func (c *Client) AddWitnessAddressAsync(address string) FutureAddWitnessAddressResult {
-	cmd := btcjson.NewAddWitnessAddressCmd(address)
+	cmd := eunojson.NewAddWitnessAddressCmd(address)
 	response := FutureAddWitnessAddressResult{
 		network:         c.chainParams,
 		responseChannel: c.SendCmd(cmd),
@@ -1192,7 +1192,7 @@ func (c *Client) AddWitnessAddressAsync(address string) FutureAddWitnessAddressR
 
 // AddWitnessAddress adds a witness address for a script and returns the new
 // address (P2SH of the witness script).
-func (c *Client) AddWitnessAddress(address string) (btcutil.Address, error) {
+func (c *Client) AddWitnessAddress(address string) (eunoutil.Address, error) {
 	return c.AddWitnessAddressAsync(address).Receive()
 }
 
@@ -1205,7 +1205,7 @@ type FutureGetAccountAddressResult struct {
 
 // Receive waits for the Response promised by the future and returns the current
 // Bitcoin address for receiving payments to the specified account.
-func (r FutureGetAccountAddressResult) Receive() (btcutil.Address, error) {
+func (r FutureGetAccountAddressResult) Receive() (eunoutil.Address, error) {
 	res, err := ReceiveFuture(r.responseChannel)
 	if err != nil {
 		return nil, err
@@ -1218,7 +1218,7 @@ func (r FutureGetAccountAddressResult) Receive() (btcutil.Address, error) {
 		return nil, err
 	}
 
-	return btcutil.DecodeAddress(addr, r.network)
+	return eunoutil.DecodeAddress(addr, r.network)
 }
 
 // GetAccountAddressAsync returns an instance of a type that can be used to get
@@ -1227,7 +1227,7 @@ func (r FutureGetAccountAddressResult) Receive() (btcutil.Address, error) {
 //
 // See GetAccountAddress for the blocking version and more details.
 func (c *Client) GetAccountAddressAsync(account string) FutureGetAccountAddressResult {
-	cmd := btcjson.NewGetAccountAddressCmd(account)
+	cmd := eunojson.NewGetAccountAddressCmd(account)
 	result := FutureGetAccountAddressResult{
 		network:         c.chainParams,
 		responseChannel: c.SendCmd(cmd),
@@ -1237,7 +1237,7 @@ func (c *Client) GetAccountAddressAsync(account string) FutureGetAccountAddressR
 
 // GetAccountAddress returns the current Bitcoin address for receiving payments
 // to the specified account.
-func (c *Client) GetAccountAddress(account string) (btcutil.Address, error) {
+func (c *Client) GetAccountAddress(account string) (eunoutil.Address, error) {
 	return c.GetAccountAddressAsync(account).Receive()
 }
 
@@ -1268,14 +1268,14 @@ func (r FutureGetAccountResult) Receive() (string, error) {
 // returned instance.
 //
 // See GetAccount for the blocking version and more details.
-func (c *Client) GetAccountAsync(address btcutil.Address) FutureGetAccountResult {
+func (c *Client) GetAccountAsync(address eunoutil.Address) FutureGetAccountResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewGetAccountCmd(addr)
+	cmd := eunojson.NewGetAccountCmd(addr)
 	return c.SendCmd(cmd)
 }
 
 // GetAccount returns the account associated with the passed address.
-func (c *Client) GetAccount(address btcutil.Address) (string, error) {
+func (c *Client) GetAccount(address eunoutil.Address) (string, error) {
 	return c.GetAccountAsync(address).Receive()
 }
 
@@ -1295,14 +1295,14 @@ func (r FutureSetAccountResult) Receive() error {
 // returned instance.
 //
 // See SetAccount for the blocking version and more details.
-func (c *Client) SetAccountAsync(address btcutil.Address, account string) FutureSetAccountResult {
+func (c *Client) SetAccountAsync(address eunoutil.Address, account string) FutureSetAccountResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewSetAccountCmd(addr, account)
+	cmd := eunojson.NewSetAccountCmd(addr, account)
 	return c.SendCmd(cmd)
 }
 
 // SetAccount sets the account associated with the passed address.
-func (c *Client) SetAccount(address btcutil.Address, account string) error {
+func (c *Client) SetAccount(address eunoutil.Address, account string) error {
 	return c.SetAccountAsync(address, account).Receive()
 }
 
@@ -1315,7 +1315,7 @@ type FutureGetAddressesByAccountResult struct {
 
 // Receive waits for the Response promised by the future and returns the list of
 // addresses associated with the passed account.
-func (r FutureGetAddressesByAccountResult) Receive() ([]btcutil.Address, error) {
+func (r FutureGetAddressesByAccountResult) Receive() ([]eunoutil.Address, error) {
 	res, err := ReceiveFuture(r.responseChannel)
 	if err != nil {
 		return nil, err
@@ -1328,9 +1328,9 @@ func (r FutureGetAddressesByAccountResult) Receive() ([]btcutil.Address, error) 
 		return nil, err
 	}
 
-	addresses := make([]btcutil.Address, len(addrStrings))
+	addresses := make([]eunoutil.Address, len(addrStrings))
 	for i, addrString := range addrStrings {
-		addresses[i], err = btcutil.DecodeAddress(addrString, r.network)
+		addresses[i], err = eunoutil.DecodeAddress(addrString, r.network)
 		if err != nil {
 			return nil, err
 		}
@@ -1345,7 +1345,7 @@ func (r FutureGetAddressesByAccountResult) Receive() ([]btcutil.Address, error) 
 //
 // See GetAddressesByAccount for the blocking version and more details.
 func (c *Client) GetAddressesByAccountAsync(account string) FutureGetAddressesByAccountResult {
-	cmd := btcjson.NewGetAddressesByAccountCmd(account)
+	cmd := eunojson.NewGetAddressesByAccountCmd(account)
 	result := FutureGetAddressesByAccountResult{
 		network:         c.chainParams,
 		responseChannel: c.SendCmd(cmd),
@@ -1355,7 +1355,7 @@ func (c *Client) GetAddressesByAccountAsync(account string) FutureGetAddressesBy
 
 // GetAddressesByAccount returns the list of addresses associated with the
 // passed account.
-func (c *Client) GetAddressesByAccount(account string) ([]btcutil.Address, error) {
+func (c *Client) GetAddressesByAccount(account string) ([]eunoutil.Address, error) {
 	return c.GetAddressesByAccountAsync(account).Receive()
 }
 
@@ -1387,8 +1387,8 @@ func (r FutureMoveResult) Receive() (bool, error) {
 // instance.
 //
 // See Move for the blocking version and more details.
-func (c *Client) MoveAsync(fromAccount, toAccount string, amount btcutil.Amount) FutureMoveResult {
-	cmd := btcjson.NewMoveCmd(fromAccount, toAccount, amount.ToBTC(), nil,
+func (c *Client) MoveAsync(fromAccount, toAccount string, amount eunoutil.Amount) FutureMoveResult {
+	cmd := eunojson.NewMoveCmd(fromAccount, toAccount, amount.ToEUNO(), nil,
 		nil)
 	return c.SendCmd(cmd)
 }
@@ -1397,7 +1397,7 @@ func (c *Client) MoveAsync(fromAccount, toAccount string, amount btcutil.Amount)
 // funds with the default number of minimum confirmations will be used.
 //
 // See MoveMinConf and MoveComment for different options.
-func (c *Client) Move(fromAccount, toAccount string, amount btcutil.Amount) (bool, error) {
+func (c *Client) Move(fromAccount, toAccount string, amount eunoutil.Amount) (bool, error) {
 	return c.MoveAsync(fromAccount, toAccount, amount).Receive()
 }
 
@@ -1407,9 +1407,9 @@ func (c *Client) Move(fromAccount, toAccount string, amount btcutil.Amount) (boo
 //
 // See MoveMinConf for the blocking version and more details.
 func (c *Client) MoveMinConfAsync(fromAccount, toAccount string,
-	amount btcutil.Amount, minConfirms int) FutureMoveResult {
+	amount eunoutil.Amount, minConfirms int) FutureMoveResult {
 
-	cmd := btcjson.NewMoveCmd(fromAccount, toAccount, amount.ToBTC(),
+	cmd := eunojson.NewMoveCmd(fromAccount, toAccount, amount.ToEUNO(),
 		&minConfirms, nil)
 	return c.SendCmd(cmd)
 }
@@ -1420,7 +1420,7 @@ func (c *Client) MoveMinConfAsync(fromAccount, toAccount string,
 //
 // See Move to use the default number of minimum confirmations and MoveComment
 // for additional options.
-func (c *Client) MoveMinConf(fromAccount, toAccount string, amount btcutil.Amount, minConf int) (bool, error) {
+func (c *Client) MoveMinConf(fromAccount, toAccount string, amount eunoutil.Amount, minConf int) (bool, error) {
 	return c.MoveMinConfAsync(fromAccount, toAccount, amount, minConf).Receive()
 }
 
@@ -1430,9 +1430,9 @@ func (c *Client) MoveMinConf(fromAccount, toAccount string, amount btcutil.Amoun
 //
 // See MoveComment for the blocking version and more details.
 func (c *Client) MoveCommentAsync(fromAccount, toAccount string,
-	amount btcutil.Amount, minConfirms int, comment string) FutureMoveResult {
+	amount eunoutil.Amount, minConfirms int, comment string) FutureMoveResult {
 
-	cmd := btcjson.NewMoveCmd(fromAccount, toAccount, amount.ToBTC(),
+	cmd := eunojson.NewMoveCmd(fromAccount, toAccount, amount.ToEUNO(),
 		&minConfirms, &comment)
 	return c.SendCmd(cmd)
 }
@@ -1443,7 +1443,7 @@ func (c *Client) MoveCommentAsync(fromAccount, toAccount string,
 // of minimum confirmations will be used.
 //
 // See Move and MoveMinConf to use defaults.
-func (c *Client) MoveComment(fromAccount, toAccount string, amount btcutil.Amount,
+func (c *Client) MoveComment(fromAccount, toAccount string, amount eunoutil.Amount,
 	minConf int, comment string) (bool, error) {
 
 	return c.MoveCommentAsync(fromAccount, toAccount, amount, minConf,
@@ -1467,7 +1467,7 @@ func (r FutureRenameAccountResult) Receive() error {
 //
 // See RenameAccount for the blocking version and more details.
 func (c *Client) RenameAccountAsync(oldAccount, newAccount string) FutureRenameAccountResult {
-	cmd := btcjson.NewRenameAccountCmd(oldAccount, newAccount)
+	cmd := eunojson.NewRenameAccountCmd(oldAccount, newAccount)
 	return c.SendCmd(cmd)
 }
 
@@ -1482,14 +1482,14 @@ type FutureValidateAddressResult chan *Response
 
 // Receive waits for the Response promised by the future and returns information
 // about the given bitcoin address.
-func (r FutureValidateAddressResult) Receive() (*btcjson.ValidateAddressWalletResult, error) {
+func (r FutureValidateAddressResult) Receive() (*eunojson.ValidateAddressWalletResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a validateaddress result object.
-	var addrResult btcjson.ValidateAddressWalletResult
+	var addrResult eunojson.ValidateAddressWalletResult
 	err = json.Unmarshal(res, &addrResult)
 	if err != nil {
 		return nil, err
@@ -1503,14 +1503,14 @@ func (r FutureValidateAddressResult) Receive() (*btcjson.ValidateAddressWalletRe
 // the returned instance.
 //
 // See ValidateAddress for the blocking version and more details.
-func (c *Client) ValidateAddressAsync(address btcutil.Address) FutureValidateAddressResult {
+func (c *Client) ValidateAddressAsync(address eunoutil.Address) FutureValidateAddressResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewValidateAddressCmd(addr)
+	cmd := eunojson.NewValidateAddressCmd(addr)
 	return c.SendCmd(cmd)
 }
 
 // ValidateAddress returns information about the given bitcoin address.
-func (c *Client) ValidateAddress(address btcutil.Address) (*btcjson.ValidateAddressWalletResult, error) {
+func (c *Client) ValidateAddress(address eunoutil.Address) (*eunojson.ValidateAddressWalletResult, error) {
 	return c.ValidateAddressAsync(address).Receive()
 }
 
@@ -1531,7 +1531,7 @@ func (r FutureKeyPoolRefillResult) Receive() error {
 //
 // See KeyPoolRefill for the blocking version and more details.
 func (c *Client) KeyPoolRefillAsync() FutureKeyPoolRefillResult {
-	cmd := btcjson.NewKeyPoolRefillCmd(nil)
+	cmd := eunojson.NewKeyPoolRefillCmd(nil)
 	return c.SendCmd(cmd)
 }
 
@@ -1548,7 +1548,7 @@ func (c *Client) KeyPoolRefill() error {
 //
 // See KeyPoolRefillSize for the blocking version and more details.
 func (c *Client) KeyPoolRefillSizeAsync(newSize uint) FutureKeyPoolRefillResult {
-	cmd := btcjson.NewKeyPoolRefillCmd(&newSize)
+	cmd := eunojson.NewKeyPoolRefillCmd(&newSize)
 	return c.SendCmd(cmd)
 }
 
@@ -1569,7 +1569,7 @@ type FutureListAccountsResult chan *Response
 
 // Receive waits for the Response promised by the future and returns returns a
 // map of account names and their associated balances.
-func (r FutureListAccountsResult) Receive() (map[string]btcutil.Amount, error) {
+func (r FutureListAccountsResult) Receive() (map[string]eunoutil.Amount, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
@@ -1582,9 +1582,9 @@ func (r FutureListAccountsResult) Receive() (map[string]btcutil.Amount, error) {
 		return nil, err
 	}
 
-	accountsMap := make(map[string]btcutil.Amount)
+	accountsMap := make(map[string]eunoutil.Amount)
 	for k, v := range accounts {
-		amount, err := btcutil.NewAmount(v)
+		amount, err := eunoutil.NewAmount(v)
 		if err != nil {
 			return nil, err
 		}
@@ -1601,7 +1601,7 @@ func (r FutureListAccountsResult) Receive() (map[string]btcutil.Amount, error) {
 //
 // See ListAccounts for the blocking version and more details.
 func (c *Client) ListAccountsAsync() FutureListAccountsResult {
-	cmd := btcjson.NewListAccountsCmd(nil)
+	cmd := eunojson.NewListAccountsCmd(nil)
 	return c.SendCmd(cmd)
 }
 
@@ -1609,7 +1609,7 @@ func (c *Client) ListAccountsAsync() FutureListAccountsResult {
 // using the default number of minimum confirmations.
 //
 // See ListAccountsMinConf to override the minimum number of confirmations.
-func (c *Client) ListAccounts() (map[string]btcutil.Amount, error) {
+func (c *Client) ListAccounts() (map[string]eunoutil.Amount, error) {
 	return c.ListAccountsAsync().Receive()
 }
 
@@ -1619,7 +1619,7 @@ func (c *Client) ListAccounts() (map[string]btcutil.Amount, error) {
 //
 // See ListAccountsMinConf for the blocking version and more details.
 func (c *Client) ListAccountsMinConfAsync(minConfirms int) FutureListAccountsResult {
-	cmd := btcjson.NewListAccountsCmd(&minConfirms)
+	cmd := eunojson.NewListAccountsCmd(&minConfirms)
 	return c.SendCmd(cmd)
 }
 
@@ -1627,7 +1627,7 @@ func (c *Client) ListAccountsMinConfAsync(minConfirms int) FutureListAccountsRes
 // balances using the specified number of minimum confirmations.
 //
 // See ListAccounts to use the default minimum number of confirmations.
-func (c *Client) ListAccountsMinConf(minConfirms int) (map[string]btcutil.Amount, error) {
+func (c *Client) ListAccountsMinConf(minConfirms int) (map[string]eunoutil.Amount, error) {
 	return c.ListAccountsMinConfAsync(minConfirms).Receive()
 }
 
@@ -1638,7 +1638,7 @@ type FutureGetBalanceResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the
 // available balance from the server for the specified account.
-func (r FutureGetBalanceResult) Receive() (btcutil.Amount, error) {
+func (r FutureGetBalanceResult) Receive() (eunoutil.Amount, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return 0, err
@@ -1651,7 +1651,7 @@ func (r FutureGetBalanceResult) Receive() (btcutil.Amount, error) {
 		return 0, err
 	}
 
-	amount, err := btcutil.NewAmount(balance)
+	amount, err := eunoutil.NewAmount(balance)
 	if err != nil {
 		return 0, err
 	}
@@ -1667,7 +1667,7 @@ type FutureGetBalanceParseResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the
 // available balance from the server for the specified account.
-func (r FutureGetBalanceParseResult) Receive() (btcutil.Amount, error) {
+func (r FutureGetBalanceParseResult) Receive() (eunoutil.Amount, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return 0, err
@@ -1684,7 +1684,7 @@ func (r FutureGetBalanceParseResult) Receive() (btcutil.Amount, error) {
 	if err != nil {
 		return 0, err
 	}
-	amount, err := btcutil.NewAmount(balance)
+	amount, err := eunoutil.NewAmount(balance)
 	if err != nil {
 		return 0, err
 	}
@@ -1698,7 +1698,7 @@ func (r FutureGetBalanceParseResult) Receive() (btcutil.Amount, error) {
 //
 // See GetBalance for the blocking version and more details.
 func (c *Client) GetBalanceAsync(account string) FutureGetBalanceResult {
-	cmd := btcjson.NewGetBalanceCmd(&account, nil)
+	cmd := eunojson.NewGetBalanceCmd(&account, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -1707,7 +1707,7 @@ func (c *Client) GetBalanceAsync(account string) FutureGetBalanceResult {
 // be "*" for all accounts.
 //
 // See GetBalanceMinConf to override the minimum number of confirmations.
-func (c *Client) GetBalance(account string) (btcutil.Amount, error) {
+func (c *Client) GetBalance(account string) (eunoutil.Amount, error) {
 	return c.GetBalanceAsync(account).Receive()
 }
 
@@ -1717,7 +1717,7 @@ func (c *Client) GetBalance(account string) (btcutil.Amount, error) {
 //
 // See GetBalanceMinConf for the blocking version and more details.
 func (c *Client) GetBalanceMinConfAsync(account string, minConfirms int) FutureGetBalanceResult {
-	cmd := btcjson.NewGetBalanceCmd(&account, &minConfirms)
+	cmd := eunojson.NewGetBalanceCmd(&account, &minConfirms)
 	return c.SendCmd(cmd)
 }
 
@@ -1726,7 +1726,7 @@ func (c *Client) GetBalanceMinConfAsync(account string, minConfirms int) FutureG
 // account may be "*" for all accounts.
 //
 // See GetBalance to use the default minimum number of confirmations.
-func (c *Client) GetBalanceMinConf(account string, minConfirms int) (btcutil.Amount, error) {
+func (c *Client) GetBalanceMinConf(account string, minConfirms int) (eunoutil.Amount, error) {
 	if c.config.EnableBCInfoHacks {
 		response := c.GetBalanceMinConfAsync(account, minConfirms)
 		return FutureGetBalanceParseResult(response).Receive()
@@ -1740,14 +1740,14 @@ type FutureGetBalancesResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the
 // available balances from the server.
-func (r FutureGetBalancesResult) Receive() (*btcjson.GetBalancesResult, error) {
+func (r FutureGetBalancesResult) Receive() (*eunojson.GetBalancesResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a floating point number.
-	var balances btcjson.GetBalancesResult
+	var balances eunojson.GetBalancesResult
 	err = json.Unmarshal(res, &balances)
 	if err != nil {
 		return nil, err
@@ -1762,12 +1762,12 @@ func (r FutureGetBalancesResult) Receive() (*btcjson.GetBalancesResult, error) {
 //
 // See GetBalances for the blocking version and more details.
 func (c *Client) GetBalancesAsync() FutureGetBalancesResult {
-	cmd := btcjson.NewGetBalancesCmd()
+	cmd := eunojson.NewGetBalancesCmd()
 	return c.SendCmd(cmd)
 }
 
 // GetBalances returns the available balances from the server.
-func (c *Client) GetBalances() (*btcjson.GetBalancesResult, error) {
+func (c *Client) GetBalances() (*eunojson.GetBalancesResult, error) {
 	return c.GetBalancesAsync().Receive()
 }
 
@@ -1778,7 +1778,7 @@ type FutureGetReceivedByAccountResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the total
 // amount received with the specified account.
-func (r FutureGetReceivedByAccountResult) Receive() (btcutil.Amount, error) {
+func (r FutureGetReceivedByAccountResult) Receive() (eunoutil.Amount, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return 0, err
@@ -1791,7 +1791,7 @@ func (r FutureGetReceivedByAccountResult) Receive() (btcutil.Amount, error) {
 		return 0, err
 	}
 
-	amount, err := btcutil.NewAmount(balance)
+	amount, err := eunoutil.NewAmount(balance)
 	if err != nil {
 		return 0, err
 	}
@@ -1805,7 +1805,7 @@ func (r FutureGetReceivedByAccountResult) Receive() (btcutil.Amount, error) {
 //
 // See GetReceivedByAccount for the blocking version and more details.
 func (c *Client) GetReceivedByAccountAsync(account string) FutureGetReceivedByAccountResult {
-	cmd := btcjson.NewGetReceivedByAccountCmd(account, nil)
+	cmd := eunojson.NewGetReceivedByAccountCmd(account, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -1814,7 +1814,7 @@ func (c *Client) GetReceivedByAccountAsync(account string) FutureGetReceivedByAc
 //
 // See GetReceivedByAccountMinConf to override the minimum number of
 // confirmations.
-func (c *Client) GetReceivedByAccount(account string) (btcutil.Amount, error) {
+func (c *Client) GetReceivedByAccount(account string) (eunoutil.Amount, error) {
 	return c.GetReceivedByAccountAsync(account).Receive()
 }
 
@@ -1824,7 +1824,7 @@ func (c *Client) GetReceivedByAccount(account string) (btcutil.Amount, error) {
 //
 // See GetReceivedByAccountMinConf for the blocking version and more details.
 func (c *Client) GetReceivedByAccountMinConfAsync(account string, minConfirms int) FutureGetReceivedByAccountResult {
-	cmd := btcjson.NewGetReceivedByAccountCmd(account, &minConfirms)
+	cmd := eunojson.NewGetReceivedByAccountCmd(account, &minConfirms)
 	return c.SendCmd(cmd)
 }
 
@@ -1833,7 +1833,7 @@ func (c *Client) GetReceivedByAccountMinConfAsync(account string, minConfirms in
 // confirmations.
 //
 // See GetReceivedByAccount to use the default minimum number of confirmations.
-func (c *Client) GetReceivedByAccountMinConf(account string, minConfirms int) (btcutil.Amount, error) {
+func (c *Client) GetReceivedByAccountMinConf(account string, minConfirms int) (eunoutil.Amount, error) {
 	return c.GetReceivedByAccountMinConfAsync(account, minConfirms).Receive()
 }
 
@@ -1843,7 +1843,7 @@ type FutureGetUnconfirmedBalanceResult chan *Response
 
 // Receive waits for the Response promised by the future and returns returns the
 // unconfirmed balance from the server for the specified account.
-func (r FutureGetUnconfirmedBalanceResult) Receive() (btcutil.Amount, error) {
+func (r FutureGetUnconfirmedBalanceResult) Receive() (eunoutil.Amount, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return 0, err
@@ -1856,7 +1856,7 @@ func (r FutureGetUnconfirmedBalanceResult) Receive() (btcutil.Amount, error) {
 		return 0, err
 	}
 
-	amount, err := btcutil.NewAmount(balance)
+	amount, err := eunoutil.NewAmount(balance)
 	if err != nil {
 		return 0, err
 	}
@@ -1870,13 +1870,13 @@ func (r FutureGetUnconfirmedBalanceResult) Receive() (btcutil.Amount, error) {
 //
 // See GetUnconfirmedBalance for the blocking version and more details.
 func (c *Client) GetUnconfirmedBalanceAsync(account string) FutureGetUnconfirmedBalanceResult {
-	cmd := btcjson.NewGetUnconfirmedBalanceCmd(&account)
+	cmd := eunojson.NewGetUnconfirmedBalanceCmd(&account)
 	return c.SendCmd(cmd)
 }
 
 // GetUnconfirmedBalance returns the unconfirmed balance from the server for
 // the specified account.
-func (c *Client) GetUnconfirmedBalance(account string) (btcutil.Amount, error) {
+func (c *Client) GetUnconfirmedBalance(account string) (eunoutil.Amount, error) {
 	return c.GetUnconfirmedBalanceAsync(account).Receive()
 }
 
@@ -1887,7 +1887,7 @@ type FutureGetReceivedByAddressResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the total
 // amount received by the specified address.
-func (r FutureGetReceivedByAddressResult) Receive() (btcutil.Amount, error) {
+func (r FutureGetReceivedByAddressResult) Receive() (eunoutil.Amount, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return 0, err
@@ -1900,7 +1900,7 @@ func (r FutureGetReceivedByAddressResult) Receive() (btcutil.Amount, error) {
 		return 0, err
 	}
 
-	amount, err := btcutil.NewAmount(balance)
+	amount, err := eunoutil.NewAmount(balance)
 	if err != nil {
 		return 0, err
 	}
@@ -1913,9 +1913,9 @@ func (r FutureGetReceivedByAddressResult) Receive() (btcutil.Amount, error) {
 // function on the returned instance.
 //
 // See GetReceivedByAddress for the blocking version and more details.
-func (c *Client) GetReceivedByAddressAsync(address btcutil.Address) FutureGetReceivedByAddressResult {
+func (c *Client) GetReceivedByAddressAsync(address eunoutil.Address) FutureGetReceivedByAddressResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewGetReceivedByAddressCmd(addr, nil)
+	cmd := eunojson.NewGetReceivedByAddressCmd(addr, nil)
 	return c.SendCmd(cmd)
 
 }
@@ -1925,7 +1925,7 @@ func (c *Client) GetReceivedByAddressAsync(address btcutil.Address) FutureGetRec
 //
 // See GetReceivedByAddressMinConf to override the minimum number of
 // confirmations.
-func (c *Client) GetReceivedByAddress(address btcutil.Address) (btcutil.Amount, error) {
+func (c *Client) GetReceivedByAddress(address eunoutil.Address) (eunoutil.Amount, error) {
 	return c.GetReceivedByAddressAsync(address).Receive()
 }
 
@@ -1934,9 +1934,9 @@ func (c *Client) GetReceivedByAddress(address btcutil.Address) (btcutil.Amount, 
 // function on the returned instance.
 //
 // See GetReceivedByAddressMinConf for the blocking version and more details.
-func (c *Client) GetReceivedByAddressMinConfAsync(address btcutil.Address, minConfirms int) FutureGetReceivedByAddressResult {
+func (c *Client) GetReceivedByAddressMinConfAsync(address eunoutil.Address, minConfirms int) FutureGetReceivedByAddressResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewGetReceivedByAddressCmd(addr, &minConfirms)
+	cmd := eunojson.NewGetReceivedByAddressCmd(addr, &minConfirms)
 	return c.SendCmd(cmd)
 }
 
@@ -1944,7 +1944,7 @@ func (c *Client) GetReceivedByAddressMinConfAsync(address btcutil.Address, minCo
 // address with at least the specified number of minimum confirmations.
 //
 // See GetReceivedByAddress to use the default minimum number of confirmations.
-func (c *Client) GetReceivedByAddressMinConf(address btcutil.Address, minConfirms int) (btcutil.Amount, error) {
+func (c *Client) GetReceivedByAddressMinConf(address eunoutil.Address, minConfirms int) (eunoutil.Amount, error) {
 	return c.GetReceivedByAddressMinConfAsync(address, minConfirms).Receive()
 }
 
@@ -1956,14 +1956,14 @@ type FutureListReceivedByAccountResult chan *Response
 
 // Receive waits for the Response promised by the future and returns a list of
 // balances by account.
-func (r FutureListReceivedByAccountResult) Receive() ([]btcjson.ListReceivedByAccountResult, error) {
+func (r FutureListReceivedByAccountResult) Receive() ([]eunojson.ListReceivedByAccountResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal as an array of listreceivedbyaccount result objects.
-	var received []btcjson.ListReceivedByAccountResult
+	var received []eunojson.ListReceivedByAccountResult
 	err = json.Unmarshal(res, &received)
 	if err != nil {
 		return nil, err
@@ -1978,7 +1978,7 @@ func (r FutureListReceivedByAccountResult) Receive() ([]btcjson.ListReceivedByAc
 //
 // See ListReceivedByAccount for the blocking version and more details.
 func (c *Client) ListReceivedByAccountAsync() FutureListReceivedByAccountResult {
-	cmd := btcjson.NewListReceivedByAccountCmd(nil, nil, nil)
+	cmd := eunojson.NewListReceivedByAccountCmd(nil, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -1989,7 +1989,7 @@ func (c *Client) ListReceivedByAccountAsync() FutureListReceivedByAccountResult 
 // See ListReceivedByAccountMinConf to override the minimum number of
 // confirmations and ListReceivedByAccountIncludeEmpty to filter accounts that
 // haven't received any payments from the results.
-func (c *Client) ListReceivedByAccount() ([]btcjson.ListReceivedByAccountResult, error) {
+func (c *Client) ListReceivedByAccount() ([]eunojson.ListReceivedByAccountResult, error) {
 	return c.ListReceivedByAccountAsync().Receive()
 }
 
@@ -1999,7 +1999,7 @@ func (c *Client) ListReceivedByAccount() ([]btcjson.ListReceivedByAccountResult,
 //
 // See ListReceivedByAccountMinConf for the blocking version and more details.
 func (c *Client) ListReceivedByAccountMinConfAsync(minConfirms int) FutureListReceivedByAccountResult {
-	cmd := btcjson.NewListReceivedByAccountCmd(&minConfirms, nil, nil)
+	cmd := eunojson.NewListReceivedByAccountCmd(&minConfirms, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -2010,7 +2010,7 @@ func (c *Client) ListReceivedByAccountMinConfAsync(minConfirms int) FutureListRe
 // See ListReceivedByAccount to use the default minimum number of confirmations
 // and ListReceivedByAccountIncludeEmpty to also include accounts that haven't
 // received any payments in the results.
-func (c *Client) ListReceivedByAccountMinConf(minConfirms int) ([]btcjson.ListReceivedByAccountResult, error) {
+func (c *Client) ListReceivedByAccountMinConf(minConfirms int) ([]eunojson.ListReceivedByAccountResult, error) {
 	return c.ListReceivedByAccountMinConfAsync(minConfirms).Receive()
 }
 
@@ -2020,7 +2020,7 @@ func (c *Client) ListReceivedByAccountMinConf(minConfirms int) ([]btcjson.ListRe
 //
 // See ListReceivedByAccountIncludeEmpty for the blocking version and more details.
 func (c *Client) ListReceivedByAccountIncludeEmptyAsync(minConfirms int, includeEmpty bool) FutureListReceivedByAccountResult {
-	cmd := btcjson.NewListReceivedByAccountCmd(&minConfirms, &includeEmpty,
+	cmd := eunojson.NewListReceivedByAccountCmd(&minConfirms, &includeEmpty,
 		nil)
 	return c.SendCmd(cmd)
 }
@@ -2030,7 +2030,7 @@ func (c *Client) ListReceivedByAccountIncludeEmptyAsync(minConfirms int, include
 // haven't received any payments depending on specified flag.
 //
 // See ListReceivedByAccount and ListReceivedByAccountMinConf to use defaults.
-func (c *Client) ListReceivedByAccountIncludeEmpty(minConfirms int, includeEmpty bool) ([]btcjson.ListReceivedByAccountResult, error) {
+func (c *Client) ListReceivedByAccountIncludeEmpty(minConfirms int, includeEmpty bool) ([]eunojson.ListReceivedByAccountResult, error) {
 	return c.ListReceivedByAccountIncludeEmptyAsync(minConfirms,
 		includeEmpty).Receive()
 }
@@ -2043,14 +2043,14 @@ type FutureListReceivedByAddressResult chan *Response
 
 // Receive waits for the Response promised by the future and returns a list of
 // balances by address.
-func (r FutureListReceivedByAddressResult) Receive() ([]btcjson.ListReceivedByAddressResult, error) {
+func (r FutureListReceivedByAddressResult) Receive() ([]eunojson.ListReceivedByAddressResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal as an array of listreceivedbyaddress result objects.
-	var received []btcjson.ListReceivedByAddressResult
+	var received []eunojson.ListReceivedByAddressResult
 	err = json.Unmarshal(res, &received)
 	if err != nil {
 		return nil, err
@@ -2065,7 +2065,7 @@ func (r FutureListReceivedByAddressResult) Receive() ([]btcjson.ListReceivedByAd
 //
 // See ListReceivedByAddress for the blocking version and more details.
 func (c *Client) ListReceivedByAddressAsync() FutureListReceivedByAddressResult {
-	cmd := btcjson.NewListReceivedByAddressCmd(nil, nil, nil)
+	cmd := eunojson.NewListReceivedByAddressCmd(nil, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -2076,7 +2076,7 @@ func (c *Client) ListReceivedByAddressAsync() FutureListReceivedByAddressResult 
 // See ListReceivedByAddressMinConf to override the minimum number of
 // confirmations and ListReceivedByAddressIncludeEmpty to also include addresses
 // that haven't received any payments in the results.
-func (c *Client) ListReceivedByAddress() ([]btcjson.ListReceivedByAddressResult, error) {
+func (c *Client) ListReceivedByAddress() ([]eunojson.ListReceivedByAddressResult, error) {
 	return c.ListReceivedByAddressAsync().Receive()
 }
 
@@ -2086,7 +2086,7 @@ func (c *Client) ListReceivedByAddress() ([]btcjson.ListReceivedByAddressResult,
 //
 // See ListReceivedByAddressMinConf for the blocking version and more details.
 func (c *Client) ListReceivedByAddressMinConfAsync(minConfirms int) FutureListReceivedByAddressResult {
-	cmd := btcjson.NewListReceivedByAddressCmd(&minConfirms, nil, nil)
+	cmd := eunojson.NewListReceivedByAddressCmd(&minConfirms, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -2097,7 +2097,7 @@ func (c *Client) ListReceivedByAddressMinConfAsync(minConfirms int) FutureListRe
 // See ListReceivedByAddress to use the default minimum number of confirmations
 // and ListReceivedByAddressIncludeEmpty to also include addresses that haven't
 // received any payments in the results.
-func (c *Client) ListReceivedByAddressMinConf(minConfirms int) ([]btcjson.ListReceivedByAddressResult, error) {
+func (c *Client) ListReceivedByAddressMinConf(minConfirms int) ([]eunojson.ListReceivedByAddressResult, error) {
 	return c.ListReceivedByAddressMinConfAsync(minConfirms).Receive()
 }
 
@@ -2107,7 +2107,7 @@ func (c *Client) ListReceivedByAddressMinConf(minConfirms int) ([]btcjson.ListRe
 //
 // See ListReceivedByAccountIncludeEmpty for the blocking version and more details.
 func (c *Client) ListReceivedByAddressIncludeEmptyAsync(minConfirms int, includeEmpty bool) FutureListReceivedByAddressResult {
-	cmd := btcjson.NewListReceivedByAddressCmd(&minConfirms, &includeEmpty,
+	cmd := eunojson.NewListReceivedByAddressCmd(&minConfirms, &includeEmpty,
 		nil)
 	return c.SendCmd(cmd)
 }
@@ -2117,7 +2117,7 @@ func (c *Client) ListReceivedByAddressIncludeEmptyAsync(minConfirms int, include
 // haven't received any payments depending on specified flag.
 //
 // See ListReceivedByAddress and ListReceivedByAddressMinConf to use defaults.
-func (c *Client) ListReceivedByAddressIncludeEmpty(minConfirms int, includeEmpty bool) ([]btcjson.ListReceivedByAddressResult, error) {
+func (c *Client) ListReceivedByAddressIncludeEmpty(minConfirms int, includeEmpty bool) ([]eunojson.ListReceivedByAddressResult, error) {
 	return c.ListReceivedByAddressIncludeEmptyAsync(minConfirms,
 		includeEmpty).Receive()
 }
@@ -2143,7 +2143,7 @@ func (r FutureWalletLockResult) Receive() error {
 //
 // See WalletLock for the blocking version and more details.
 func (c *Client) WalletLockAsync() FutureWalletLockResult {
-	cmd := btcjson.NewWalletLockCmd()
+	cmd := eunojson.NewWalletLockCmd()
 	return c.SendCmd(cmd)
 }
 
@@ -2160,7 +2160,7 @@ func (c *Client) WalletLock() error {
 // decryption key which is then stored in memory for the specified timeout
 // (in seconds).
 func (c *Client) WalletPassphrase(passphrase string, timeoutSecs int64) error {
-	cmd := btcjson.NewWalletPassphraseCmd(passphrase, timeoutSecs)
+	cmd := eunojson.NewWalletPassphraseCmd(passphrase, timeoutSecs)
 	_, err := c.sendCmdAndWait(cmd)
 	return err
 }
@@ -2182,7 +2182,7 @@ func (r FutureWalletPassphraseChangeResult) Receive() error {
 //
 // See WalletPassphraseChange for the blocking version and more details.
 func (c *Client) WalletPassphraseChangeAsync(old, new string) FutureWalletPassphraseChangeResult {
-	cmd := btcjson.NewWalletPassphraseChangeCmd(old, new)
+	cmd := eunojson.NewWalletPassphraseChangeCmd(old, new)
 	return c.SendCmd(cmd)
 }
 
@@ -2223,9 +2223,9 @@ func (r FutureSignMessageResult) Receive() (string, error) {
 // returned instance.
 //
 // See SignMessage for the blocking version and more details.
-func (c *Client) SignMessageAsync(address btcutil.Address, message string) FutureSignMessageResult {
+func (c *Client) SignMessageAsync(address eunoutil.Address, message string) FutureSignMessageResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewSignMessageCmd(addr, message)
+	cmd := eunojson.NewSignMessageCmd(addr, message)
 	return c.SendCmd(cmd)
 }
 
@@ -2233,7 +2233,7 @@ func (c *Client) SignMessageAsync(address btcutil.Address, message string) Futur
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SignMessage(address btcutil.Address, message string) (string, error) {
+func (c *Client) SignMessage(address eunoutil.Address, message string) (string, error) {
 	return c.SignMessageAsync(address, message).Receive()
 }
 
@@ -2264,9 +2264,9 @@ func (r FutureVerifyMessageResult) Receive() (bool, error) {
 // returned instance.
 //
 // See VerifyMessage for the blocking version and more details.
-func (c *Client) VerifyMessageAsync(address btcutil.Address, signature, message string) FutureVerifyMessageResult {
+func (c *Client) VerifyMessageAsync(address eunoutil.Address, signature, message string) FutureVerifyMessageResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewVerifyMessageCmd(addr, signature, message)
+	cmd := eunojson.NewVerifyMessageCmd(addr, signature, message)
 	return c.SendCmd(cmd)
 }
 
@@ -2274,7 +2274,7 @@ func (c *Client) VerifyMessageAsync(address btcutil.Address, signature, message 
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) VerifyMessage(address btcutil.Address, signature, message string) (bool, error) {
+func (c *Client) VerifyMessage(address eunoutil.Address, signature, message string) (bool, error) {
 	return c.VerifyMessageAsync(address, signature, message).Receive()
 }
 
@@ -2289,7 +2289,7 @@ type FutureDumpPrivKeyResult chan *Response
 // Receive waits for the Response promised by the future and returns the private
 // key corresponding to the passed address encoded in the wallet import format
 // (WIF)
-func (r FutureDumpPrivKeyResult) Receive() (*btcutil.WIF, error) {
+func (r FutureDumpPrivKeyResult) Receive() (*eunoutil.WIF, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
@@ -2302,7 +2302,7 @@ func (r FutureDumpPrivKeyResult) Receive() (*btcutil.WIF, error) {
 		return nil, err
 	}
 
-	return btcutil.DecodeWIF(privKeyWIF)
+	return eunoutil.DecodeWIF(privKeyWIF)
 }
 
 // DumpPrivKeyAsync returns an instance of a type that can be used to get the
@@ -2310,9 +2310,9 @@ func (r FutureDumpPrivKeyResult) Receive() (*btcutil.WIF, error) {
 // returned instance.
 //
 // See DumpPrivKey for the blocking version and more details.
-func (c *Client) DumpPrivKeyAsync(address btcutil.Address) FutureDumpPrivKeyResult {
+func (c *Client) DumpPrivKeyAsync(address eunoutil.Address) FutureDumpPrivKeyResult {
 	addr := address.EncodeAddress()
-	cmd := btcjson.NewDumpPrivKeyCmd(addr)
+	cmd := eunojson.NewDumpPrivKeyCmd(addr)
 	return c.SendCmd(cmd)
 }
 
@@ -2321,7 +2321,7 @@ func (c *Client) DumpPrivKeyAsync(address btcutil.Address) FutureDumpPrivKeyResu
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) DumpPrivKey(address btcutil.Address) (*btcutil.WIF, error) {
+func (c *Client) DumpPrivKey(address eunoutil.Address) (*eunoutil.WIF, error) {
 	return c.DumpPrivKeyAsync(address).Receive()
 }
 
@@ -2342,7 +2342,7 @@ func (r FutureImportAddressResult) Receive() error {
 //
 // See ImportAddress for the blocking version and more details.
 func (c *Client) ImportAddressAsync(address string) FutureImportAddressResult {
-	cmd := btcjson.NewImportAddressCmd(address, "", nil)
+	cmd := eunojson.NewImportAddressCmd(address, "", nil)
 	return c.SendCmd(cmd)
 }
 
@@ -2357,7 +2357,7 @@ func (c *Client) ImportAddress(address string) error {
 //
 // See ImportAddress for the blocking version and more details.
 func (c *Client) ImportAddressRescanAsync(address string, account string, rescan bool) FutureImportAddressResult {
-	cmd := btcjson.NewImportAddressCmd(address, account, &rescan)
+	cmd := eunojson.NewImportAddressCmd(address, account, &rescan)
 	return c.SendCmd(cmd)
 }
 
@@ -2373,13 +2373,13 @@ type FutureImportMultiResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the result
 // of importing multiple addresses/scripts.
-func (r FutureImportMultiResult) Receive() (btcjson.ImportMultiResults, error) {
+func (r FutureImportMultiResult) Receive() (eunojson.ImportMultiResults, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var importMultiResults btcjson.ImportMultiResults
+	var importMultiResults eunojson.ImportMultiResults
 	err = json.Unmarshal(res, &importMultiResults)
 	if err != nil {
 		return nil, err
@@ -2392,16 +2392,16 @@ func (r FutureImportMultiResult) Receive() (btcjson.ImportMultiResults, error) {
 // returned instance.
 //
 // See ImportMulti for the blocking version and more details.
-func (c *Client) ImportMultiAsync(requests []btcjson.ImportMultiRequest, options *btcjson.ImportMultiOptions) FutureImportMultiResult {
-	cmd := btcjson.NewImportMultiCmd(requests, options)
+func (c *Client) ImportMultiAsync(requests []eunojson.ImportMultiRequest, options *eunojson.ImportMultiOptions) FutureImportMultiResult {
+	cmd := eunojson.NewImportMultiCmd(requests, options)
 	return c.SendCmd(cmd)
 }
 
 // ImportMulti imports addresses/scripts, optionally rescanning the blockchain
 // from the earliest creation time of the imported scripts.
 //
-// See btcjson.ImportMultiRequest for details on the requests parameter.
-func (c *Client) ImportMulti(requests []btcjson.ImportMultiRequest, options *btcjson.ImportMultiOptions) (btcjson.ImportMultiResults, error) {
+// See eunojson.ImportMultiRequest for details on the requests parameter.
+func (c *Client) ImportMulti(requests []eunojson.ImportMultiRequest, options *eunojson.ImportMultiOptions) (eunojson.ImportMultiResults, error) {
 	return c.ImportMultiAsync(requests, options).Receive()
 }
 
@@ -2422,19 +2422,19 @@ func (r FutureImportPrivKeyResult) Receive() error {
 // returned instance.
 //
 // See ImportPrivKey for the blocking version and more details.
-func (c *Client) ImportPrivKeyAsync(privKeyWIF *btcutil.WIF) FutureImportPrivKeyResult {
+func (c *Client) ImportPrivKeyAsync(privKeyWIF *eunoutil.WIF) FutureImportPrivKeyResult {
 	wif := ""
 	if privKeyWIF != nil {
 		wif = privKeyWIF.String()
 	}
 
-	cmd := btcjson.NewImportPrivKeyCmd(wif, nil, nil)
+	cmd := eunojson.NewImportPrivKeyCmd(wif, nil, nil)
 	return c.SendCmd(cmd)
 }
 
 // ImportPrivKey imports the passed private key which must be the wallet import
 // format (WIF).
-func (c *Client) ImportPrivKey(privKeyWIF *btcutil.WIF) error {
+func (c *Client) ImportPrivKey(privKeyWIF *eunoutil.WIF) error {
 	return c.ImportPrivKeyAsync(privKeyWIF).Receive()
 }
 
@@ -2443,19 +2443,19 @@ func (c *Client) ImportPrivKey(privKeyWIF *btcutil.WIF) error {
 // returned instance.
 //
 // See ImportPrivKey for the blocking version and more details.
-func (c *Client) ImportPrivKeyLabelAsync(privKeyWIF *btcutil.WIF, label string) FutureImportPrivKeyResult {
+func (c *Client) ImportPrivKeyLabelAsync(privKeyWIF *eunoutil.WIF, label string) FutureImportPrivKeyResult {
 	wif := ""
 	if privKeyWIF != nil {
 		wif = privKeyWIF.String()
 	}
 
-	cmd := btcjson.NewImportPrivKeyCmd(wif, &label, nil)
+	cmd := eunojson.NewImportPrivKeyCmd(wif, &label, nil)
 	return c.SendCmd(cmd)
 }
 
 // ImportPrivKeyLabel imports the passed private key which must be the wallet import
 // format (WIF). It sets the account label to the one provided.
-func (c *Client) ImportPrivKeyLabel(privKeyWIF *btcutil.WIF, label string) error {
+func (c *Client) ImportPrivKeyLabel(privKeyWIF *eunoutil.WIF, label string) error {
 	return c.ImportPrivKeyLabelAsync(privKeyWIF, label).Receive()
 }
 
@@ -2464,20 +2464,20 @@ func (c *Client) ImportPrivKeyLabel(privKeyWIF *btcutil.WIF, label string) error
 // returned instance.
 //
 // See ImportPrivKey for the blocking version and more details.
-func (c *Client) ImportPrivKeyRescanAsync(privKeyWIF *btcutil.WIF, label string, rescan bool) FutureImportPrivKeyResult {
+func (c *Client) ImportPrivKeyRescanAsync(privKeyWIF *eunoutil.WIF, label string, rescan bool) FutureImportPrivKeyResult {
 	wif := ""
 	if privKeyWIF != nil {
 		wif = privKeyWIF.String()
 	}
 
-	cmd := btcjson.NewImportPrivKeyCmd(wif, &label, &rescan)
+	cmd := eunojson.NewImportPrivKeyCmd(wif, &label, &rescan)
 	return c.SendCmd(cmd)
 }
 
 // ImportPrivKeyRescan imports the passed private key which must be the wallet import
 // format (WIF). It sets the account label to the one provided. When rescan is true,
 // the block history is scanned for transactions addressed to provided privKey.
-func (c *Client) ImportPrivKeyRescan(privKeyWIF *btcutil.WIF, label string, rescan bool) error {
+func (c *Client) ImportPrivKeyRescan(privKeyWIF *eunoutil.WIF, label string, rescan bool) error {
 	return c.ImportPrivKeyRescanAsync(privKeyWIF, label, rescan).Receive()
 }
 
@@ -2498,7 +2498,7 @@ func (r FutureImportPubKeyResult) Receive() error {
 //
 // See ImportPubKey for the blocking version and more details.
 func (c *Client) ImportPubKeyAsync(pubKey string) FutureImportPubKeyResult {
-	cmd := btcjson.NewImportPubKeyCmd(pubKey, nil)
+	cmd := eunojson.NewImportPubKeyCmd(pubKey, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -2513,7 +2513,7 @@ func (c *Client) ImportPubKey(pubKey string) error {
 //
 // See ImportPubKey for the blocking version and more details.
 func (c *Client) ImportPubKeyRescanAsync(pubKey string, rescan bool) FutureImportPubKeyResult {
-	cmd := btcjson.NewImportPubKeyCmd(pubKey, &rescan)
+	cmd := eunojson.NewImportPubKeyCmd(pubKey, &rescan)
 	return c.SendCmd(cmd)
 }
 
@@ -2527,7 +2527,7 @@ func (c *Client) ImportPubKeyRescan(pubKey string, rescan bool) error {
 // Miscellaneous Functions
 // ***********************
 
-// NOTE: While getinfo is implemented here (in wallet.go), a btcd chain server
+// NOTE: While getinfo is implemented here (in wallet.go), a eunod chain server
 // will respond to getinfo requests as well, excluding any wallet information.
 
 // FutureGetInfoResult is a future promise to deliver the result of a
@@ -2536,14 +2536,14 @@ type FutureGetInfoResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the info
 // provided by the server.
-func (r FutureGetInfoResult) Receive() (*btcjson.InfoWalletResult, error) {
+func (r FutureGetInfoResult) Receive() (*eunojson.InfoWalletResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a getinfo result object.
-	var infoRes btcjson.InfoWalletResult
+	var infoRes eunojson.InfoWalletResult
 	err = json.Unmarshal(res, &infoRes)
 	if err != nil {
 		return nil, err
@@ -2558,14 +2558,14 @@ func (r FutureGetInfoResult) Receive() (*btcjson.InfoWalletResult, error) {
 //
 // See GetInfo for the blocking version and more details.
 func (c *Client) GetInfoAsync() FutureGetInfoResult {
-	cmd := btcjson.NewGetInfoCmd()
+	cmd := eunojson.NewGetInfoCmd()
 	return c.SendCmd(cmd)
 }
 
 // GetInfo returns miscellaneous info regarding the RPC server.  The returned
 // info object may be void of wallet information if the remote server does
 // not include wallet functionality.
-func (c *Client) GetInfo() (*btcjson.InfoWalletResult, error) {
+func (c *Client) GetInfo() (*eunojson.InfoWalletResult, error) {
 	return c.GetInfoAsync().Receive()
 }
 
@@ -2576,14 +2576,14 @@ type FutureWalletCreateFundedPsbtResult chan *Response
 // Receive waits for the Response promised by the future and returns the
 // partially signed transaction in PSBT format along with the resulting fee
 // and change output index.
-func (r FutureWalletCreateFundedPsbtResult) Receive() (*btcjson.WalletCreateFundedPsbtResult, error) {
+func (r FutureWalletCreateFundedPsbtResult) Receive() (*eunojson.WalletCreateFundedPsbtResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a getinfo result object.
-	var psbtRes btcjson.WalletCreateFundedPsbtResult
+	var psbtRes eunojson.WalletCreateFundedPsbtResult
 	err = json.Unmarshal(res, &psbtRes)
 	if err != nil {
 		return nil, err
@@ -2598,10 +2598,10 @@ func (r FutureWalletCreateFundedPsbtResult) Receive() (*btcjson.WalletCreateFund
 //
 // See WalletCreateFundedPsbt for the blocking version and more details.
 func (c *Client) WalletCreateFundedPsbtAsync(
-	inputs []btcjson.PsbtInput, outputs []btcjson.PsbtOutput, locktime *uint32,
-	options *btcjson.WalletCreateFundedPsbtOpts, bip32Derivs *bool,
+	inputs []eunojson.PsbtInput, outputs []eunojson.PsbtOutput, locktime *uint32,
+	options *eunojson.WalletCreateFundedPsbtOpts, bip32Derivs *bool,
 ) FutureWalletCreateFundedPsbtResult {
-	cmd := btcjson.NewWalletCreateFundedPsbtCmd(inputs, outputs, locktime, options, bip32Derivs)
+	cmd := eunojson.NewWalletCreateFundedPseunomd(inputs, outputs, locktime, options, bip32Derivs)
 	return c.SendCmd(cmd)
 }
 
@@ -2609,9 +2609,9 @@ func (c *Client) WalletCreateFundedPsbtAsync(
 // Signed Transaction format. Inputs will be added if supplied inputs are not
 // enough.
 func (c *Client) WalletCreateFundedPsbt(
-	inputs []btcjson.PsbtInput, outputs []btcjson.PsbtOutput, locktime *uint32,
-	options *btcjson.WalletCreateFundedPsbtOpts, bip32Derivs *bool,
-) (*btcjson.WalletCreateFundedPsbtResult, error) {
+	inputs []eunojson.PsbtInput, outputs []eunojson.PsbtOutput, locktime *uint32,
+	options *eunojson.WalletCreateFundedPsbtOpts, bip32Derivs *bool,
+) (*eunojson.WalletCreateFundedPsbtResult, error) {
 	return c.WalletCreateFundedPsbtAsync(inputs, outputs, locktime, options, bip32Derivs).Receive()
 }
 
@@ -2622,14 +2622,14 @@ type FutureWalletProcessPsbtResult chan *Response
 // Receive waits for the Response promised by the future and returns an updated
 // PSBT with signed inputs from the wallet and a boolen indicating if the the
 // transaction has a complete set of signatures.
-func (r FutureWalletProcessPsbtResult) Receive() (*btcjson.WalletProcessPsbtResult, error) {
+func (r FutureWalletProcessPsbtResult) Receive() (*eunojson.WalletProcessPsbtResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a getinfo result object.
-	var psbtRes btcjson.WalletProcessPsbtResult
+	var psbtRes eunojson.WalletProcessPsbtResult
 	err = json.Unmarshal(res, &psbtRes)
 	if err != nil {
 		return nil, err
@@ -2646,7 +2646,7 @@ func (r FutureWalletProcessPsbtResult) Receive() (*btcjson.WalletProcessPsbtResu
 func (c *Client) WalletProcessPsbtAsync(
 	psbt string, sign *bool, sighashType SigHashType, bip32Derivs *bool,
 ) FutureWalletProcessPsbtResult {
-	cmd := btcjson.NewWalletProcessPsbtCmd(psbt, sign, btcjson.String(sighashType.String()), bip32Derivs)
+	cmd := eunojson.NewWalletProcessPseunomd(psbt, sign, eunojson.String(sighashType.String()), bip32Derivs)
 	return c.SendCmd(cmd)
 }
 
@@ -2654,7 +2654,7 @@ func (c *Client) WalletProcessPsbtAsync(
 // then signs inputs.
 func (c *Client) WalletProcessPsbt(
 	psbt string, sign *bool, sighashType SigHashType, bip32Derivs *bool,
-) (*btcjson.WalletProcessPsbtResult, error) {
+) (*eunojson.WalletProcessPsbtResult, error) {
 	return c.WalletProcessPsbtAsync(psbt, sign, sighashType, bip32Derivs).Receive()
 }
 
@@ -2664,13 +2664,13 @@ type FutureGetWalletInfoResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the result
 // of wallet state info.
-func (r FutureGetWalletInfoResult) Receive() (*btcjson.GetWalletInfoResult, error) {
+func (r FutureGetWalletInfoResult) Receive() (*eunojson.GetWalletInfoResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var getWalletInfoResult btcjson.GetWalletInfoResult
+	var getWalletInfoResult eunojson.GetWalletInfoResult
 	err = json.Unmarshal(res, &getWalletInfoResult)
 	if err != nil {
 		return nil, err
@@ -2684,12 +2684,12 @@ func (r FutureGetWalletInfoResult) Receive() (*btcjson.GetWalletInfoResult, erro
 //
 // See GetWalletInfo for the blocking version and more details.
 func (c *Client) GetWalletInfoAsync() FutureGetWalletInfoResult {
-	cmd := btcjson.NewGetWalletInfoCmd()
+	cmd := eunojson.NewGetWalletInfoCmd()
 	return c.SendCmd(cmd)
 }
 
 // GetWalletInfo returns various wallet state info.
-func (c *Client) GetWalletInfo() (*btcjson.GetWalletInfoResult, error) {
+func (c *Client) GetWalletInfo() (*eunojson.GetWalletInfoResult, error) {
 	return c.GetWalletInfoAsync().Receive()
 }
 
@@ -2709,7 +2709,7 @@ func (r FutureBackupWalletResult) Receive() error {
 //
 // See BackupWallet for the blocking version and more details.
 func (c *Client) BackupWalletAsync(destination string) FutureBackupWalletResult {
-	return c.SendCmd(btcjson.NewBackupWalletCmd(destination))
+	return c.SendCmd(eunojson.NewBackupWalletCmd(destination))
 }
 
 // BackupWallet safely copies current wallet file to destination, which can
@@ -2723,13 +2723,13 @@ func (c *Client) BackupWallet(destination string) error {
 type FutureDumpWalletResult chan *Response
 
 // Receive waits for the Response promised by the future
-func (r FutureDumpWalletResult) Receive() (*btcjson.DumpWalletResult, error) {
+func (r FutureDumpWalletResult) Receive() (*eunojson.DumpWalletResult, error) {
 	bytes, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var res btcjson.DumpWalletResult
+	var res eunojson.DumpWalletResult
 	err = json.Unmarshal(bytes, &res)
 	return &res, err
 }
@@ -2740,11 +2740,11 @@ func (r FutureDumpWalletResult) Receive() (*btcjson.DumpWalletResult, error) {
 //
 // See DumpWalletAsync for the blocking version and more details.
 func (c *Client) DumpWalletAsync(destination string) FutureDumpWalletResult {
-	return c.SendCmd(btcjson.NewDumpWalletCmd(destination))
+	return c.SendCmd(eunojson.NewDumpWalletCmd(destination))
 }
 
 // DumpWallet dumps all wallet keys in a human-readable format to a server-side file.
-func (c *Client) DumpWallet(destination string) (*btcjson.DumpWalletResult, error) {
+func (c *Client) DumpWallet(destination string) (*eunojson.DumpWalletResult, error) {
 	return c.DumpWalletAsync(destination).Receive()
 }
 
@@ -2764,7 +2764,7 @@ func (r FutureImportWalletResult) Receive() error {
 //
 // See ImportWallet for the blocking version and more details.
 func (c *Client) ImportWalletAsync(filename string) FutureImportWalletResult {
-	return c.SendCmd(btcjson.NewImportWalletCmd(filename))
+	return c.SendCmd(eunojson.NewImportWalletCmd(filename))
 }
 
 // ImportWallet imports keys from a wallet dump file (see DumpWallet).
@@ -2788,7 +2788,7 @@ func (r FutureUnloadWalletResult) Receive() error {
 //
 // See UnloadWallet for the blocking version and more details.
 func (c *Client) UnloadWalletAsync(walletName *string) FutureUnloadWalletResult {
-	return c.SendCmd(btcjson.NewUnloadWalletCmd(walletName))
+	return c.SendCmd(eunojson.NewUnloadWalletCmd(walletName))
 }
 
 // UnloadWallet unloads the referenced wallet. If the RPC server URL already
@@ -2803,12 +2803,12 @@ func (c *Client) UnloadWallet(walletName *string) error {
 type FutureLoadWalletResult chan *Response
 
 // Receive waits for the Response promised by the future
-func (r FutureLoadWalletResult) Receive() (*btcjson.LoadWalletResult, error) {
+func (r FutureLoadWalletResult) Receive() (*eunojson.LoadWalletResult, error) {
 	bytes, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
-	var result btcjson.LoadWalletResult
+	var result eunojson.LoadWalletResult
 	err = json.Unmarshal(bytes, &result)
 	return &result, err
 }
@@ -2819,15 +2819,15 @@ func (r FutureLoadWalletResult) Receive() (*btcjson.LoadWalletResult, error) {
 //
 // See LoadWallet for the blocking version and more details.
 func (c *Client) LoadWalletAsync(walletName string) FutureLoadWalletResult {
-	return c.SendCmd(btcjson.NewLoadWalletCmd(walletName))
+	return c.SendCmd(eunojson.NewLoadWalletCmd(walletName))
 }
 
 // LoadWallet loads a wallet from a wallet file or directory.
-func (c *Client) LoadWallet(walletName string) (*btcjson.LoadWalletResult, error) {
+func (c *Client) LoadWallet(walletName string) (*eunojson.LoadWalletResult, error) {
 	return c.LoadWalletAsync(walletName).Receive()
 }
 
 // TODO(davec): Implement
-// encryptwallet (Won't be supported by btcwallet since it's always encrypted)
-// listaddressgroupings (NYI in btcwallet)
-// listreceivedbyaccount (NYI in btcwallet)
+// encryptwallet (Won't be supported by eunowallet since it's always encrypted)
+// listaddressgroupings (NYI in eunowallet)
+// listreceivedbyaccount (NYI in eunowallet)

@@ -2,7 +2,7 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package btcutil
+package eunoutil
 
 import (
 	"errors"
@@ -19,33 +19,33 @@ type AmountUnit int
 // These constants define various units used when describing a bitcoin
 // monetary amount.
 const (
-	AmountMegaBTC  AmountUnit = 6
-	AmountKiloBTC  AmountUnit = 3
-	AmountBTC      AmountUnit = 0
-	AmountMilliBTC AmountUnit = -3
-	AmountMicroBTC AmountUnit = -6
+	AmountMegaEUNO  AmountUnit = 6
+	AmountKiloEUNO  AmountUnit = 3
+	AmountEUNO      AmountUnit = 0
+	AmountMilliEUNO AmountUnit = -3
+	AmountMicroEUNO AmountUnit = -6
 	AmountSatoshi  AmountUnit = -8
 )
 
 // String returns the unit as a string.  For recognized units, the SI
 // prefix is used, or "Satoshi" for the base unit.  For all unrecognized
-// units, "1eN BTC" is returned, where N is the AmountUnit.
+// units, "1eN EUNO" is returned, where N is the AmountUnit.
 func (u AmountUnit) String() string {
 	switch u {
-	case AmountMegaBTC:
-		return "MBTC"
-	case AmountKiloBTC:
-		return "kBTC"
-	case AmountBTC:
-		return "BTC"
-	case AmountMilliBTC:
-		return "mBTC"
-	case AmountMicroBTC:
-		return "μBTC"
+	case AmountMegaEUNO:
+		return "MEUNO"
+	case AmountKiloEUNO:
+		return "kEUNO"
+	case AmountEUNO:
+		return "EUNO"
+	case AmountMilliEUNO:
+		return "mEUNO"
+	case AmountMicroEUNO:
+		return "μEUNO"
 	case AmountSatoshi:
 		return "Satoshi"
 	default:
-		return "1e" + strconv.FormatInt(int64(u), 10) + " BTC"
+		return "1e" + strconv.FormatInt(int64(u), 10) + " EUNO"
 	}
 }
 
@@ -69,10 +69,10 @@ func round(f float64) Amount {
 // does not check that the amount is within the total amount of bitcoin
 // producible as f may not refer to an amount at a single moment in time.
 //
-// NewAmount is for specifically for converting BTC to Satoshi.
+// NewAmount is for specifically for converting EUNO to Satoshi.
 // For creating a new Amount with an int64 value which denotes a quantity of Satoshi,
 // do a simple type conversion from type int64 to Amount.
-// See GoDoc for example: http://godoc.org/github.com/btcsuite/btcd/btcutil#example-Amount
+// See GoDoc for example: http://godoc.org/github.com/MotoAcidic/eunod/eunoutil#example-Amount
 func NewAmount(f float64) (Amount, error) {
 	// The amount is only considered invalid if it cannot be represented
 	// as an integer type.  This may happen if f is NaN or +-Infinity.
@@ -94,9 +94,9 @@ func (a Amount) ToUnit(u AmountUnit) float64 {
 	return float64(a) / math.Pow10(int(u+8))
 }
 
-// ToBTC is the equivalent of calling ToUnit with AmountBTC.
-func (a Amount) ToBTC() float64 {
-	return a.ToUnit(AmountBTC)
+// ToEUNO is the equivalent of calling ToUnit with AmountEUNO.
+func (a Amount) ToEUNO() float64 {
+	return a.ToUnit(AmountEUNO)
 }
 
 // Format formats a monetary amount counted in bitcoin base units as a
@@ -108,9 +108,9 @@ func (a Amount) Format(u AmountUnit) string {
 	return strconv.FormatFloat(a.ToUnit(u), 'f', -int(u+8), 64) + units
 }
 
-// String is the equivalent of calling Format with AmountBTC.
+// String is the equivalent of calling Format with AmountEUNO.
 func (a Amount) String() string {
-	return a.Format(AmountBTC)
+	return a.Format(AmountEUNO)
 }
 
 // MulF64 multiplies an Amount by a floating point value.  While this is not

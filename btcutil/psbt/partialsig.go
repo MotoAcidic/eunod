@@ -3,13 +3,13 @@ package psbt
 import (
 	"bytes"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/eunoec/v2/ecdsa"
 )
 
-// PartialSig encapsulate a (BTC public key, ECDSA signature)
+// PartialSig encapsulate a (EUNO public key, ECDSA signature)
 // pair, note that the fields are stored as byte slices, not
-// btcec.PublicKey or btcec.Signature (because manipulations will
+// eunoec.PublicKey or eunoec.Signature (because manipulations will
 // be with the former not the latter, here); compliance with consensus
 // serialization is enforced with .checkValid()
 type PartialSig struct {
@@ -31,7 +31,7 @@ func (s PartialSigSorter) Less(i, j int) bool {
 // validatePubkey checks if pubKey is *any* valid pubKey serialization in a
 // Bitcoin context (compressed/uncomp. OK).
 func validatePubkey(pubKey []byte) bool {
-	_, err := btcec.ParsePubKey(pubKey)
+	_, err := eunoec.ParsePubKey(pubKey)
 	return err == nil
 }
 

@@ -16,11 +16,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/btcsuite/btcd/blockchain"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/integration/rpctest"
-	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/MotoAcidic/eunod/blockchain"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/integration/rpctest"
+	"github.com/MotoAcidic/eunod/rpcclient"
 )
 
 func testGetBestBlock(r *rpctest.Harness, t *testing.T) {
@@ -307,9 +307,9 @@ func TestMain(m *testing.M) {
 	// In order to properly test scenarios on as if we were on mainnet,
 	// ensure that non-standard transactions aren't accepted into the
 	// mempool or relayed.
-	btcdCfg := []string{"--rejectnonstd"}
+	eunodCfg := []string{"--rejectnonstd"}
 	primaryHarness, err = rpctest.New(
-		&chaincfg.SimNetParams, nil, btcdCfg, "",
+		&chaincfg.SimNetParams, nil, eunodCfg, "",
 	)
 	if err != nil {
 		fmt.Println("unable to create primary harness: ", err)
@@ -349,7 +349,7 @@ func TestRpcServer(t *testing.T) {
 	defer func() {
 		// If one of the integration tests caused a panic within the main
 		// goroutine, then tear down all the harnesses in order to avoid
-		// any leaked btcd processes.
+		// any leaked eunod processes.
 		if r := recover(); r != nil {
 			fmt.Println("recovering from test panic: ", r)
 			if err := rpctest.TearDownAll(); err != nil {

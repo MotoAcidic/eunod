@@ -2,7 +2,7 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package btcutil
+package eunoutil
 
 import (
 	"bytes"
@@ -11,10 +11,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcutil/base58"
-	"github.com/btcsuite/btcd/btcutil/bech32"
-	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/eunoutil/base58"
+	"github.com/MotoAcidic/eunod/eunoutil/bech32"
+	"github.com/MotoAcidic/eunod/chaincfg"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -422,7 +422,7 @@ const (
 // AddressPubKey is an Address for a pay-to-pubkey transaction.
 type AddressPubKey struct {
 	pubKeyFormat PubKeyFormat
-	pubKey       *btcec.PublicKey
+	pubKey       *eunoec.PublicKey
 	pubKeyHashID byte
 }
 
@@ -430,13 +430,13 @@ type AddressPubKey struct {
 // address.  The serializedPubKey parameter must be a valid pubkey and can be
 // uncompressed, compressed, or hybrid.
 func NewAddressPubKey(serializedPubKey []byte, net *chaincfg.Params) (*AddressPubKey, error) {
-	pubKey, err := btcec.ParsePubKey(serializedPubKey)
+	pubKey, err := eunoec.ParsePubKey(serializedPubKey)
 	if err != nil {
 		return nil, err
 	}
 
 	// Set the format of the pubkey.  This probably should be returned
-	// from btcec, but do it here to avoid API churn.  We already know the
+	// from eunoec, but do it here to avoid API churn.  We already know the
 	// pubkey is valid since it parsed above, so it's safe to simply examine
 	// the leading byte to get the format.
 	pkFormat := PKFUncompressed
@@ -522,7 +522,7 @@ func (a *AddressPubKey) AddressPubKeyHash() *AddressPubKeyHash {
 }
 
 // PubKey returns the underlying public key for the address.
-func (a *AddressPubKey) PubKey() *btcec.PublicKey {
+func (a *AddressPubKey) PubKey() *eunoec.PublicKey {
 	return a.pubKey
 }
 

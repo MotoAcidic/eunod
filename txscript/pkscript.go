@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/eunoec/v2/ecdsa"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunod/eunoutil"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -142,7 +142,7 @@ func (s PkScript) Script() []byte {
 }
 
 // Address encodes the script into an address for the given chain.
-func (s PkScript) Address(chainParams *chaincfg.Params) (btcutil.Address, error) {
+func (s PkScript) Address(chainParams *chaincfg.Params) (eunoutil.Address, error) {
 	_, addrs, _, err := ExtractPkScriptAddrs(s.Script(), chainParams)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse address: %v", err)
@@ -191,7 +191,7 @@ func computeNonWitnessPkScript(sigScript []byte) (PkScript, error) {
 		// signature script. We'll attempt to parse it to ensure this is
 		// a P2PKH redeem script.
 		pubKey := sigScript[len(sigScript)-compressedPubKeyLen:]
-		if btcec.IsCompressedPubKey(pubKey) {
+		if eunoec.IsCompressedPubKey(pubKey) {
 			pubKeyHash := hash160(pubKey)
 			script, err := payToPubKeyHashScript(pubKeyHash)
 			if err != nil {

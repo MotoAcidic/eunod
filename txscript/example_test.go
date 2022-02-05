@@ -9,24 +9,24 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/txscript"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunod/eunoutil"
 )
 
 // This example demonstrates creating a script which pays to a bitcoin address.
 // It also prints the created script hex and uses the DisasmString function to
 // display the disassembled script.
 func ExamplePayToAddrScript() {
-	// Parse the address to send the coins to into a btcutil.Address
+	// Parse the address to send the coins to into a eunoutil.Address
 	// which is useful to ensure the accuracy of the address and determine
 	// the address type.  It is also required for the upcoming call to
 	// PayToAddrScript.
 	addressStr := "12gpXQVcCL2qhTNQgyLVdCFG2Qs2px98nV"
-	address, err := btcutil.DecodeAddress(addressStr, &chaincfg.MainNetParams)
+	address, err := eunoutil.DecodeAddress(addressStr, &chaincfg.MainNetParams)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -90,9 +90,9 @@ func ExampleSignTxOutput() {
 		fmt.Println(err)
 		return
 	}
-	privKey, pubKey := btcec.PrivKeyFromBytes(privKeyBytes)
-	pubKeyHash := btcutil.Hash160(pubKey.SerializeCompressed())
-	addr, err := btcutil.NewAddressPubKeyHash(pubKeyHash,
+	privKey, pubKey := eunoec.PrivKeyFromBytes(privKeyBytes)
+	pubKeyHash := eunoutil.Hash160(pubKey.SerializeCompressed())
+	addr, err := eunoutil.NewAddressPubKeyHash(pubKeyHash,
 		&chaincfg.MainNetParams)
 	if err != nil {
 		fmt.Println(err)
@@ -101,7 +101,7 @@ func ExampleSignTxOutput() {
 
 	// For this example, create a fake transaction that represents what
 	// would ordinarily be the real transaction that is being spent.  It
-	// contains a single output that pays to address in the amount of 1 BTC.
+	// contains a single output that pays to address in the amount of 1 EUNO.
 	originTx := wire.NewMsgTx(wire.TxVersion)
 	prevOut := wire.NewOutPoint(&chainhash.Hash{}, ^uint32(0))
 	txIn := wire.NewTxIn(prevOut, []byte{txscript.OP_0, txscript.OP_0}, nil)
@@ -131,7 +131,7 @@ func ExampleSignTxOutput() {
 	redeemTx.AddTxOut(txOut)
 
 	// Sign the redeeming transaction.
-	lookupKey := func(a btcutil.Address) (*btcec.PrivateKey, bool, error) {
+	lookupKey := func(a eunoutil.Address) (*eunoec.PrivateKey, bool, error) {
 		// Ordinarily this function would involve looking up the private
 		// key for the provided address, but since the only thing being
 		// signed in this example uses the address associated with the
@@ -187,7 +187,7 @@ func ExampleSignTxOutput() {
 func ExampleScriptTokenizer() {
 	// Create a script to use in the example.  Ordinarily this would come from
 	// some other source.
-	hash160 := btcutil.Hash160([]byte("example"))
+	hash160 := eunoutil.Hash160([]byte("example"))
 	script, err := txscript.NewScriptBuilder().AddOp(txscript.OP_DUP).
 		AddOp(txscript.OP_HASH160).AddData(hash160).
 		AddOp(txscript.OP_EQUALVERIFY).AddOp(txscript.OP_CHECKSIG).Script()

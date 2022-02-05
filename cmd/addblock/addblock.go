@@ -8,21 +8,21 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/btcsuite/btcd/blockchain"
-	"github.com/btcsuite/btcd/blockchain/indexers"
-	"github.com/btcsuite/btcd/database"
-	"github.com/btcsuite/btcd/limits"
-	"github.com/btcsuite/btclog"
+	"github.com/MotoAcidic/eunod/blockchain"
+	"github.com/MotoAcidic/eunod/blockchain/indexers"
+	"github.com/MotoAcidic/eunod/database"
+	"github.com/MotoAcidic/eunod/limits"
+	"github.com/MotoAcidic/eunolog"
 )
 
 const (
-	// blockDbNamePrefix is the prefix for the btcd block database.
+	// blockDbNamePrefix is the prefix for the eunod block database.
 	blockDbNamePrefix = "blocks"
 )
 
 var (
 	cfg *config
-	log btclog.Logger
+	log eunolog.Logger
 )
 
 // loadBlockDB opens the block database and returns a handle to it.
@@ -68,7 +68,7 @@ func realMain() error {
 	cfg = tcfg
 
 	// Setup logging.
-	backendLogger := btclog.NewBackend(os.Stdout)
+	backendLogger := eunolog.NewBackend(os.Stdout)
 	defer os.Stdout.Sync()
 	log = backendLogger.Logger("MAIN")
 	database.UseLogger(backendLogger.Logger("BCDB"))

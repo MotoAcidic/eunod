@@ -9,16 +9,16 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
-	"github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/MotoAcidic/eunod/eunojson"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunod/eunoutil"
 )
 
 const (
 	// defaultMaxFeeRate is the default maximum fee rate in sat/KB enforced
 	// by bitcoind v0.19.0 or after for transaction broadcast.
-	defaultMaxFeeRate = btcutil.SatoshiPerBitcoin / 10
+	defaultMaxFeeRate = eunoutil.SatoshiPerBitcoin / 10
 )
 
 // SigHashType enumerates the available signature hashing types that the
@@ -70,7 +70,7 @@ type FutureGetRawTransactionResult chan *Response
 
 // Receive waits for the Response promised by the future and returns a
 // transaction given its hash.
-func (r FutureGetRawTransactionResult) Receive() (*btcutil.Tx, error) {
+func (r FutureGetRawTransactionResult) Receive() (*eunoutil.Tx, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (r FutureGetRawTransactionResult) Receive() (*btcutil.Tx, error) {
 	if err := msgTx.Deserialize(bytes.NewReader(serializedTx)); err != nil {
 		return nil, err
 	}
-	return btcutil.NewTx(&msgTx), nil
+	return eunoutil.NewTx(&msgTx), nil
 }
 
 // GetRawTransactionAsync returns an instance of a type that can be used to get
@@ -108,7 +108,7 @@ func (c *Client) GetRawTransactionAsync(txHash *chainhash.Hash) FutureGetRawTran
 		hash = txHash.String()
 	}
 
-	cmd := btcjson.NewGetRawTransactionCmd(hash, btcjson.Int(0))
+	cmd := eunojson.NewGetRawTransactionCmd(hash, eunojson.Int(0))
 	return c.SendCmd(cmd)
 }
 
@@ -116,7 +116,7 @@ func (c *Client) GetRawTransactionAsync(txHash *chainhash.Hash) FutureGetRawTran
 //
 // See GetRawTransactionVerbose to obtain additional information about the
 // transaction.
-func (c *Client) GetRawTransaction(txHash *chainhash.Hash) (*btcutil.Tx, error) {
+func (c *Client) GetRawTransaction(txHash *chainhash.Hash) (*eunoutil.Tx, error) {
 	return c.GetRawTransactionAsync(txHash).Receive()
 }
 
@@ -127,14 +127,14 @@ type FutureGetRawTransactionVerboseResult chan *Response
 
 // Receive waits for the Response promised by the future and returns information
 // about a transaction given its hash.
-func (r FutureGetRawTransactionVerboseResult) Receive() (*btcjson.TxRawResult, error) {
+func (r FutureGetRawTransactionVerboseResult) Receive() (*eunojson.TxRawResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a gettrawtransaction result object.
-	var rawTxResult btcjson.TxRawResult
+	var rawTxResult eunojson.TxRawResult
 	err = json.Unmarshal(res, &rawTxResult)
 	if err != nil {
 		return nil, err
@@ -154,7 +154,7 @@ func (c *Client) GetRawTransactionVerboseAsync(txHash *chainhash.Hash) FutureGet
 		hash = txHash.String()
 	}
 
-	cmd := btcjson.NewGetRawTransactionCmd(hash, btcjson.Int(1))
+	cmd := eunojson.NewGetRawTransactionCmd(hash, eunojson.Int(1))
 	return c.SendCmd(cmd)
 }
 
@@ -162,7 +162,7 @@ func (c *Client) GetRawTransactionVerboseAsync(txHash *chainhash.Hash) FutureGet
 // its hash.
 //
 // See GetRawTransaction to obtain only the transaction already deserialized.
-func (c *Client) GetRawTransactionVerbose(txHash *chainhash.Hash) (*btcjson.TxRawResult, error) {
+func (c *Client) GetRawTransactionVerbose(txHash *chainhash.Hash) (*eunojson.TxRawResult, error) {
 	return c.GetRawTransactionVerboseAsync(txHash).Receive()
 }
 
@@ -172,14 +172,14 @@ type FutureDecodeRawTransactionResult chan *Response
 
 // Receive waits for the Response promised by the future and returns information
 // about a transaction given its serialized bytes.
-func (r FutureDecodeRawTransactionResult) Receive() (*btcjson.TxRawResult, error) {
+func (r FutureDecodeRawTransactionResult) Receive() (*eunojson.TxRawResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a decoderawtransaction result object.
-	var rawTxResult btcjson.TxRawResult
+	var rawTxResult eunojson.TxRawResult
 	err = json.Unmarshal(res, &rawTxResult)
 	if err != nil {
 		return nil, err
@@ -195,13 +195,13 @@ func (r FutureDecodeRawTransactionResult) Receive() (*btcjson.TxRawResult, error
 // See DecodeRawTransaction for the blocking version and more details.
 func (c *Client) DecodeRawTransactionAsync(serializedTx []byte) FutureDecodeRawTransactionResult {
 	txHex := hex.EncodeToString(serializedTx)
-	cmd := btcjson.NewDecodeRawTransactionCmd(txHex)
+	cmd := eunojson.NewDecodeRawTransactionCmd(txHex)
 	return c.SendCmd(cmd)
 }
 
 // DecodeRawTransaction returns information about a transaction given its
 // serialized bytes.
-func (c *Client) DecodeRawTransaction(serializedTx []byte) (*btcjson.TxRawResult, error) {
+func (c *Client) DecodeRawTransaction(serializedTx []byte) (*eunojson.TxRawResult, error) {
 	return c.DecodeRawTransactionAsync(serializedTx).Receive()
 }
 
@@ -211,13 +211,13 @@ type FutureFundRawTransactionResult chan *Response
 
 // Receive waits for the Response promised by the future and returns information
 // about a funding attempt
-func (r FutureFundRawTransactionResult) Receive() (*btcjson.FundRawTransactionResult, error) {
+func (r FutureFundRawTransactionResult) Receive() (*eunojson.FundRawTransactionResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var marshalled btcjson.FundRawTransactionResult
+	var marshalled eunojson.FundRawTransactionResult
 	if err := json.Unmarshal(res, &marshalled); err != nil {
 		return nil, err
 	}
@@ -230,19 +230,19 @@ func (r FutureFundRawTransactionResult) Receive() (*btcjson.FundRawTransactionRe
 // function on the returned instance.
 //
 // See FundRawTransaction for the blocking version and more details.
-func (c *Client) FundRawTransactionAsync(tx *wire.MsgTx, opts btcjson.FundRawTransactionOpts, isWitness *bool) FutureFundRawTransactionResult {
+func (c *Client) FundRawTransactionAsync(tx *wire.MsgTx, opts eunojson.FundRawTransactionOpts, isWitness *bool) FutureFundRawTransactionResult {
 	var txBuf bytes.Buffer
 	if err := tx.Serialize(&txBuf); err != nil {
 		return newFutureError(err)
 	}
 
-	cmd := btcjson.NewFundRawTransactionCmd(txBuf.Bytes(), opts, isWitness)
+	cmd := eunojson.NewFundRawTransactionCmd(txBuf.Bytes(), opts, isWitness)
 	return c.SendCmd(cmd)
 }
 
 // FundRawTransaction returns the result of trying to fund the given transaction with
 // funds from the node wallet
-func (c *Client) FundRawTransaction(tx *wire.MsgTx, opts btcjson.FundRawTransactionOpts, isWitness *bool) (*btcjson.FundRawTransactionResult, error) {
+func (c *Client) FundRawTransaction(tx *wire.MsgTx, opts eunojson.FundRawTransactionOpts, isWitness *bool) (*eunojson.FundRawTransactionResult, error) {
 	return c.FundRawTransactionAsync(tx, opts, isWitness).Receive()
 }
 
@@ -290,22 +290,22 @@ func (r FutureCreateRawTransactionResult) Receive() (*wire.MsgTx, error) {
 // function on the returned instance.
 //
 // See CreateRawTransaction for the blocking version and more details.
-func (c *Client) CreateRawTransactionAsync(inputs []btcjson.TransactionInput,
-	amounts map[btcutil.Address]btcutil.Amount, lockTime *int64) FutureCreateRawTransactionResult {
+func (c *Client) CreateRawTransactionAsync(inputs []eunojson.TransactionInput,
+	amounts map[eunoutil.Address]eunoutil.Amount, lockTime *int64) FutureCreateRawTransactionResult {
 
 	convertedAmts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
-		convertedAmts[addr.String()] = amount.ToBTC()
+		convertedAmts[addr.String()] = amount.ToEUNO()
 	}
-	cmd := btcjson.NewCreateRawTransactionCmd(inputs, convertedAmts, lockTime)
+	cmd := eunojson.NewCreateRawTransactionCmd(inputs, convertedAmts, lockTime)
 	return c.SendCmd(cmd)
 }
 
 // CreateRawTransaction returns a new transaction spending the provided inputs
 // and sending to the provided addresses. If the inputs are either nil or an
 // empty slice, it is interpreted as an empty slice.
-func (c *Client) CreateRawTransaction(inputs []btcjson.TransactionInput,
-	amounts map[btcutil.Address]btcutil.Amount, lockTime *int64) (*wire.MsgTx, error) {
+func (c *Client) CreateRawTransaction(inputs []eunojson.TransactionInput,
+	amounts map[eunoutil.Address]eunoutil.Amount, lockTime *int64) (*wire.MsgTx, error) {
 
 	return c.CreateRawTransactionAsync(inputs, amounts, lockTime).Receive()
 }
@@ -357,7 +357,7 @@ func (c *Client) SendRawTransactionAsync(tx *wire.MsgTx, allowHighFees bool) Fut
 		return newFutureError(err)
 	}
 
-	var cmd *btcjson.SendRawTransactionCmd
+	var cmd *eunojson.SendRawTransactionCmd
 	switch version {
 	// Starting from bitcoind v0.19.0, the MaxFeeRate field should be used.
 	case BitcoindPost19:
@@ -367,11 +367,11 @@ func (c *Client) SendRawTransactionAsync(tx *wire.MsgTx, allowHighFees bool) Fut
 		if !allowHighFees {
 			maxFeeRate = defaultMaxFeeRate
 		}
-		cmd = btcjson.NewBitcoindSendRawTransactionCmd(txHex, maxFeeRate)
+		cmd = eunojson.NewBitcoindSendRawTransactionCmd(txHex, maxFeeRate)
 
 	// Otherwise, use the AllowHighFees field.
 	default:
-		cmd = btcjson.NewSendRawTransactionCmd(txHex, &allowHighFees)
+		cmd = eunojson.NewSendRawTransactionCmd(txHex, &allowHighFees)
 	}
 
 	return c.SendCmd(cmd)
@@ -397,7 +397,7 @@ func (r FutureSignRawTransactionResult) Receive() (*wire.MsgTx, bool, error) {
 	}
 
 	// Unmarshal as a signrawtransaction result.
-	var signRawTxResult btcjson.SignRawTransactionResult
+	var signRawTxResult eunojson.SignRawTransactionResult
 	err = json.Unmarshal(res, &signRawTxResult)
 	if err != nil {
 		return nil, false, err
@@ -434,7 +434,7 @@ func (c *Client) SignRawTransactionAsync(tx *wire.MsgTx) FutureSignRawTransactio
 		txHex = hex.EncodeToString(buf.Bytes())
 	}
 
-	cmd := btcjson.NewSignRawTransactionCmd(txHex, nil, nil, nil)
+	cmd := eunojson.NewSignRawTransactionCmd(txHex, nil, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -454,7 +454,7 @@ func (c *Client) SignRawTransaction(tx *wire.MsgTx) (*wire.MsgTx, bool, error) {
 // function on the returned instance.
 //
 // See SignRawTransaction2 for the blocking version and more details.
-func (c *Client) SignRawTransaction2Async(tx *wire.MsgTx, inputs []btcjson.RawTxInput) FutureSignRawTransactionResult {
+func (c *Client) SignRawTransaction2Async(tx *wire.MsgTx, inputs []eunojson.RawTxInput) FutureSignRawTransactionResult {
 	txHex := ""
 	if tx != nil {
 		// Serialize the transaction and convert to hex string.
@@ -465,7 +465,7 @@ func (c *Client) SignRawTransaction2Async(tx *wire.MsgTx, inputs []btcjson.RawTx
 		txHex = hex.EncodeToString(buf.Bytes())
 	}
 
-	cmd := btcjson.NewSignRawTransactionCmd(txHex, &inputs, nil, nil)
+	cmd := eunojson.NewSignRawTransactionCmd(txHex, &inputs, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -479,7 +479,7 @@ func (c *Client) SignRawTransaction2Async(tx *wire.MsgTx, inputs []btcjson.RawTx
 //
 // See SignRawTransaction if the RPC server already knows the input
 // transactions.
-func (c *Client) SignRawTransaction2(tx *wire.MsgTx, inputs []btcjson.RawTxInput) (*wire.MsgTx, bool, error) {
+func (c *Client) SignRawTransaction2(tx *wire.MsgTx, inputs []eunojson.RawTxInput) (*wire.MsgTx, bool, error) {
 	return c.SignRawTransaction2Async(tx, inputs).Receive()
 }
 
@@ -489,7 +489,7 @@ func (c *Client) SignRawTransaction2(tx *wire.MsgTx, inputs []btcjson.RawTxInput
 //
 // See SignRawTransaction3 for the blocking version and more details.
 func (c *Client) SignRawTransaction3Async(tx *wire.MsgTx,
-	inputs []btcjson.RawTxInput,
+	inputs []eunojson.RawTxInput,
 	privKeysWIF []string) FutureSignRawTransactionResult {
 
 	txHex := ""
@@ -502,7 +502,7 @@ func (c *Client) SignRawTransaction3Async(tx *wire.MsgTx,
 		txHex = hex.EncodeToString(buf.Bytes())
 	}
 
-	cmd := btcjson.NewSignRawTransactionCmd(txHex, &inputs, &privKeysWIF,
+	cmd := eunojson.NewSignRawTransactionCmd(txHex, &inputs, &privKeysWIF,
 		nil)
 	return c.SendCmd(cmd)
 }
@@ -525,7 +525,7 @@ func (c *Client) SignRawTransaction3Async(tx *wire.MsgTx,
 // transactions and private keys or SignRawTransaction2 if it already knows the
 // private keys.
 func (c *Client) SignRawTransaction3(tx *wire.MsgTx,
-	inputs []btcjson.RawTxInput,
+	inputs []eunojson.RawTxInput,
 	privKeysWIF []string) (*wire.MsgTx, bool, error) {
 
 	return c.SignRawTransaction3Async(tx, inputs, privKeysWIF).Receive()
@@ -537,7 +537,7 @@ func (c *Client) SignRawTransaction3(tx *wire.MsgTx,
 //
 // See SignRawTransaction4 for the blocking version and more details.
 func (c *Client) SignRawTransaction4Async(tx *wire.MsgTx,
-	inputs []btcjson.RawTxInput, privKeysWIF []string,
+	inputs []eunojson.RawTxInput, privKeysWIF []string,
 	hashType SigHashType) FutureSignRawTransactionResult {
 
 	txHex := ""
@@ -550,8 +550,8 @@ func (c *Client) SignRawTransaction4Async(tx *wire.MsgTx,
 		txHex = hex.EncodeToString(buf.Bytes())
 	}
 
-	cmd := btcjson.NewSignRawTransactionCmd(txHex, &inputs, &privKeysWIF,
-		btcjson.String(string(hashType)))
+	cmd := eunojson.NewSignRawTransactionCmd(txHex, &inputs, &privKeysWIF,
+		eunojson.String(string(hashType)))
 	return c.SendCmd(cmd)
 }
 
@@ -575,7 +575,7 @@ func (c *Client) SignRawTransaction4Async(tx *wire.MsgTx,
 // the input transactions and private keys, SignRawTransaction2 if it already
 // knows the private keys, or SignRawTransaction3 if it does not know both.
 func (c *Client) SignRawTransaction4(tx *wire.MsgTx,
-	inputs []btcjson.RawTxInput, privKeysWIF []string,
+	inputs []eunojson.RawTxInput, privKeysWIF []string,
 	hashType SigHashType) (*wire.MsgTx, bool, error) {
 
 	return c.SignRawTransaction4Async(tx, inputs, privKeysWIF,
@@ -596,7 +596,7 @@ func (r FutureSignRawTransactionWithWalletResult) Receive() (*wire.MsgTx, bool, 
 	}
 
 	// Unmarshal as a signtransactionwithwallet result.
-	var signRawTxWithWalletResult btcjson.SignRawTransactionWithWalletResult
+	var signRawTxWithWalletResult eunojson.SignRawTransactionWithWalletResult
 	err = json.Unmarshal(res, &signRawTxWithWalletResult)
 	if err != nil {
 		return nil, false, err
@@ -633,7 +633,7 @@ func (c *Client) SignRawTransactionWithWalletAsync(tx *wire.MsgTx) FutureSignRaw
 		txHex = hex.EncodeToString(buf.Bytes())
 	}
 
-	cmd := btcjson.NewSignRawTransactionWithWalletCmd(txHex, nil, nil)
+	cmd := eunojson.NewSignRawTransactionWithWalletCmd(txHex, nil, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -654,7 +654,7 @@ func (c *Client) SignRawTransactionWithWallet(tx *wire.MsgTx) (*wire.MsgTx, bool
 //
 // See SignRawTransactionWithWallet2 for the blocking version and more details.
 func (c *Client) SignRawTransactionWithWallet2Async(tx *wire.MsgTx,
-	inputs []btcjson.RawTxWitnessInput) FutureSignRawTransactionWithWalletResult {
+	inputs []eunojson.RawTxWitnessInput) FutureSignRawTransactionWithWalletResult {
 
 	txHex := ""
 	if tx != nil {
@@ -666,7 +666,7 @@ func (c *Client) SignRawTransactionWithWallet2Async(tx *wire.MsgTx,
 		txHex = hex.EncodeToString(buf.Bytes())
 	}
 
-	cmd := btcjson.NewSignRawTransactionWithWalletCmd(txHex, &inputs, nil)
+	cmd := eunojson.NewSignRawTransactionWithWalletCmd(txHex, &inputs, nil)
 	return c.SendCmd(cmd)
 }
 
@@ -681,7 +681,7 @@ func (c *Client) SignRawTransactionWithWallet2Async(tx *wire.MsgTx,
 // See SignRawTransactionWithWallet if the RPC server already knows the input
 // transactions.
 func (c *Client) SignRawTransactionWithWallet2(tx *wire.MsgTx,
-	inputs []btcjson.RawTxWitnessInput) (*wire.MsgTx, bool, error) {
+	inputs []eunojson.RawTxWitnessInput) (*wire.MsgTx, bool, error) {
 
 	return c.SignRawTransactionWithWallet2Async(tx, inputs).Receive()
 }
@@ -692,7 +692,7 @@ func (c *Client) SignRawTransactionWithWallet2(tx *wire.MsgTx,
 //
 // See SignRawTransactionWithWallet3 for the blocking version and more details.
 func (c *Client) SignRawTransactionWithWallet3Async(tx *wire.MsgTx,
-	inputs []btcjson.RawTxWitnessInput, hashType SigHashType) FutureSignRawTransactionWithWalletResult {
+	inputs []eunojson.RawTxWitnessInput, hashType SigHashType) FutureSignRawTransactionWithWalletResult {
 
 	txHex := ""
 	if tx != nil {
@@ -704,7 +704,7 @@ func (c *Client) SignRawTransactionWithWallet3Async(tx *wire.MsgTx,
 		txHex = hex.EncodeToString(buf.Bytes())
 	}
 
-	cmd := btcjson.NewSignRawTransactionWithWalletCmd(txHex, &inputs, btcjson.String(string(hashType)))
+	cmd := eunojson.NewSignRawTransactionWithWalletCmd(txHex, &inputs, eunojson.String(string(hashType)))
 	return c.SendCmd(cmd)
 }
 
@@ -720,7 +720,7 @@ func (c *Client) SignRawTransactionWithWallet3Async(tx *wire.MsgTx,
 // desired.  Otherwise, see SignRawTransactionWithWallet if the RPC server already
 // knows the input transactions, or SignRawTransactionWihWallet2 if it does not.
 func (c *Client) SignRawTransactionWithWallet3(tx *wire.MsgTx,
-	inputs []btcjson.RawTxWitnessInput, hashType SigHashType) (*wire.MsgTx, bool, error) {
+	inputs []eunojson.RawTxWitnessInput, hashType SigHashType) (*wire.MsgTx, bool, error) {
 
 	return c.SignRawTransactionWithWallet3Async(tx, inputs, hashType).Receive()
 }
@@ -770,10 +770,10 @@ func (r FutureSearchRawTransactionsResult) Receive() ([]*wire.MsgTx, error) {
 // function on the returned instance.
 //
 // See SearchRawTransactions for the blocking version and more details.
-func (c *Client) SearchRawTransactionsAsync(address btcutil.Address, skip, count int, reverse bool, filterAddrs []string) FutureSearchRawTransactionsResult {
+func (c *Client) SearchRawTransactionsAsync(address eunoutil.Address, skip, count int, reverse bool, filterAddrs []string) FutureSearchRawTransactionsResult {
 	addr := address.EncodeAddress()
-	verbose := btcjson.Int(0)
-	cmd := btcjson.NewSearchRawTransactionsCmd(addr, verbose, &skip, &count,
+	verbose := eunojson.Int(0)
+	cmd := eunojson.NewSearchRawTransactionsCmd(addr, verbose, &skip, &count,
 		nil, &reverse, &filterAddrs)
 	return c.SendCmd(cmd)
 }
@@ -785,7 +785,7 @@ func (c *Client) SearchRawTransactionsAsync(address btcutil.Address, skip, count
 //
 // See SearchRawTransactionsVerbose to retrieve a list of data structures with
 // information about the transactions instead of the transactions themselves.
-func (c *Client) SearchRawTransactions(address btcutil.Address, skip, count int, reverse bool, filterAddrs []string) ([]*wire.MsgTx, error) {
+func (c *Client) SearchRawTransactions(address eunoutil.Address, skip, count int, reverse bool, filterAddrs []string) ([]*wire.MsgTx, error) {
 	return c.SearchRawTransactionsAsync(address, skip, count, reverse, filterAddrs).Receive()
 }
 
@@ -796,14 +796,14 @@ type FutureSearchRawTransactionsVerboseResult chan *Response
 
 // Receive waits for the Response promised by the future and returns the
 // found raw transactions.
-func (r FutureSearchRawTransactionsVerboseResult) Receive() ([]*btcjson.SearchRawTransactionsResult, error) {
+func (r FutureSearchRawTransactionsVerboseResult) Receive() ([]*eunojson.SearchRawTransactionsResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal as an array of raw transaction results.
-	var result []*btcjson.SearchRawTransactionsResult
+	var result []*eunojson.SearchRawTransactionsResult
 	err = json.Unmarshal(res, &result)
 	if err != nil {
 		return nil, err
@@ -817,16 +817,16 @@ func (r FutureSearchRawTransactionsVerboseResult) Receive() ([]*btcjson.SearchRa
 // function on the returned instance.
 //
 // See SearchRawTransactionsVerbose for the blocking version and more details.
-func (c *Client) SearchRawTransactionsVerboseAsync(address btcutil.Address, skip,
+func (c *Client) SearchRawTransactionsVerboseAsync(address eunoutil.Address, skip,
 	count int, includePrevOut, reverse bool, filterAddrs *[]string) FutureSearchRawTransactionsVerboseResult {
 
 	addr := address.EncodeAddress()
-	verbose := btcjson.Int(1)
+	verbose := eunojson.Int(1)
 	var prevOut *int
 	if includePrevOut {
-		prevOut = btcjson.Int(1)
+		prevOut = eunojson.Int(1)
 	}
-	cmd := btcjson.NewSearchRawTransactionsCmd(addr, verbose, &skip, &count,
+	cmd := eunojson.NewSearchRawTransactionsCmd(addr, verbose, &skip, &count,
 		prevOut, &reverse, filterAddrs)
 	return c.SendCmd(cmd)
 }
@@ -838,8 +838,8 @@ func (c *Client) SearchRawTransactionsVerboseAsync(address btcutil.Address, skip
 // specifically been enabled.
 //
 // See SearchRawTransactions to retrieve a list of raw transactions instead.
-func (c *Client) SearchRawTransactionsVerbose(address btcutil.Address, skip,
-	count int, includePrevOut, reverse bool, filterAddrs []string) ([]*btcjson.SearchRawTransactionsResult, error) {
+func (c *Client) SearchRawTransactionsVerbose(address eunoutil.Address, skip,
+	count int, includePrevOut, reverse bool, filterAddrs []string) ([]*eunojson.SearchRawTransactionsResult, error) {
 
 	return c.SearchRawTransactionsVerboseAsync(address, skip, count,
 		includePrevOut, reverse, &filterAddrs).Receive()
@@ -851,14 +851,14 @@ type FutureDecodeScriptResult chan *Response
 
 // Receive waits for the Response promised by the future and returns information
 // about a script given its serialized bytes.
-func (r FutureDecodeScriptResult) Receive() (*btcjson.DecodeScriptResult, error) {
+func (r FutureDecodeScriptResult) Receive() (*eunojson.DecodeScriptResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a decodescript result object.
-	var decodeScriptResult btcjson.DecodeScriptResult
+	var decodeScriptResult eunojson.DecodeScriptResult
 	err = json.Unmarshal(res, &decodeScriptResult)
 	if err != nil {
 		return nil, err
@@ -874,11 +874,11 @@ func (r FutureDecodeScriptResult) Receive() (*btcjson.DecodeScriptResult, error)
 // See DecodeScript for the blocking version and more details.
 func (c *Client) DecodeScriptAsync(serializedScript []byte) FutureDecodeScriptResult {
 	scriptHex := hex.EncodeToString(serializedScript)
-	cmd := btcjson.NewDecodeScriptCmd(scriptHex)
+	cmd := eunojson.NewDecodeScriptCmd(scriptHex)
 	return c.SendCmd(cmd)
 }
 
 // DecodeScript returns information about a script given its serialized bytes.
-func (c *Client) DecodeScript(serializedScript []byte) (*btcjson.DecodeScriptResult, error) {
+func (c *Client) DecodeScript(serializedScript []byte) (*eunojson.DecodeScriptResult, error) {
 	return c.DecodeScriptAsync(serializedScript).Receive()
 }

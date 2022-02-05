@@ -9,10 +9,10 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/btcutil/bloom"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunod/eunoutil"
+	"github.com/MotoAcidic/eunod/eunoutil/bloom"
 )
 
 func TestMerkleBlock3(t *testing.T) {
@@ -29,7 +29,7 @@ func TestMerkleBlock3(t *testing.T) {
 		t.Errorf("TestMerkleBlock3 DecodeString failed: %v", err)
 		return
 	}
-	blk, err := btcutil.NewBlockFromBytes(blockBytes)
+	blk, err := eunoutil.NewBlockFromBytes(blockBytes)
 	if err != nil {
 		t.Errorf("TestMerkleBlock3 NewBlockFromBytes failed: %v", err)
 		return
@@ -60,9 +60,9 @@ func TestMerkleBlock3(t *testing.T) {
 	}
 
 	got := bytes.NewBuffer(nil)
-	err = mBlock.BtcEncode(got, wire.ProtocolVersion, wire.LatestEncoding)
+	err = mBlock.EunoEncode(got, wire.ProtocolVersion, wire.LatestEncoding)
 	if err != nil {
-		t.Errorf("TestMerkleBlock3 BtcEncode failed: %v", err)
+		t.Errorf("TestMerkleBlock3 EunoEncode failed: %v", err)
 		return
 	}
 

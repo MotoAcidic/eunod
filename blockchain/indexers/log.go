@@ -4,12 +4,12 @@
 
 package indexers
 
-import "github.com/btcsuite/btclog"
+import "github.com/MotoAcidic/eunolog"
 
 // log is a logger that is initialized with no output filters.  This
 // means the package will not perform any logging by default until the caller
 // requests it.
-var log btclog.Logger
+var log eunolog.Logger
 
 // The default amount of logging is none.
 func init() {
@@ -19,12 +19,12 @@ func init() {
 // DisableLog disables all library log output.  Logging output is disabled
 // by default until either UseLogger or SetLogWriter are called.
 func DisableLog() {
-	log = btclog.Disabled
+	log = eunolog.Disabled
 }
 
 // UseLogger uses a specified Logger to output package logging info.
 // This should be used in preference to SetLogWriter if the caller is also
-// using btclog.
-func UseLogger(logger btclog.Logger) {
+// using eunolog.
+func UseLogger(logger eunolog.Logger) {
 	log = logger
 }

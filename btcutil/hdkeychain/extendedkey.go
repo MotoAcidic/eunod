@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/btcutil/base58"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/eunoutil"
+	"github.com/MotoAcidic/eunod/eunoutil/base58"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
 )
 
 const (
@@ -154,7 +154,7 @@ func (k *ExtendedKey) pubKeyBytes() []byte {
 	// This is a private extended key, so calculate and memoize the public
 	// key if needed.
 	if len(k.pubKey) == 0 {
-		_, pubKey := btcec.PrivKeyFromBytes(k.key)
+		_, pubKey := eunoec.PrivKeyFromBytes(k.key)
 		k.pubKey = pubKey.SerializeCompressed()
 	}
 
@@ -291,7 +291,7 @@ func (k *ExtendedKey) Derive(i uint32) (*ExtendedKey, error) {
 	// chance (< 1 in 2^127) this condition will not hold, and in that case,
 	// a child extended key can't be created for this index and the caller
 	// should simply increment to the next index.
-	var ilNum btcec.ModNScalar
+	var ilNum eunoec.ModNScalar
 	if overflow := ilNum.SetByteSlice(il); overflow {
 		return nil, ErrInvalidChild
 	}
@@ -312,7 +312,7 @@ func (k *ExtendedKey) Derive(i uint32) (*ExtendedKey, error) {
 		// derive the final child key.
 		//
 		// childKey = parse256(Il) + parenKey
-		var keyNum btcec.ModNScalar
+		var keyNum eunoec.ModNScalar
 		if overflow := keyNum.SetByteSlice(k.key); overflow {
 			return nil, ErrInvalidChild
 		}
@@ -332,13 +332,13 @@ func (k *ExtendedKey) Derive(i uint32) (*ExtendedKey, error) {
 		// Calculate the corresponding intermediate public key for thek
 		// intermediate private key: ilJ = ilScalar*G
 		var (
-			ilScalar btcec.ModNScalar
-			ilJ      btcec.JacobianPoint
+			ilScalar eunoec.ModNScalar
+			ilJ      eunoec.JacobianPoint
 		)
 		if overflow := ilScalar.SetByteSlice(il); overflow {
 			return nil, ErrInvalidChild
 		}
-		btcec.ScalarBaseMultNonConst(&ilScalar, &ilJ)
+		eunoec.ScalarBaseMultNonConst(&ilScalar, &ilJ)
 
 		if (ilJ.X.IsZero() && ilJ.Y.IsZero()) || ilJ.Z.IsZero() {
 			return nil, ErrInvalidChild
@@ -347,27 +347,27 @@ func (k *ExtendedKey) Derive(i uint32) (*ExtendedKey, error) {
 		// Convert the serialized compressed parent public key into X
 		// and Y coordinates so it can be added to the intermediate
 		// public key.
-		pubKey, err := btcec.ParsePubKey(k.key)
+		pubKey, err := eunoec.ParsePubKey(k.key)
 		if err != nil {
 			return nil, err
 		}
 
 		// Convert the public key to jacobian coordinates, as that's
 		// what our main add/double methods use.
-		var pubKeyJ btcec.JacobianPoint
+		var pubKeyJ eunoec.JacobianPoint
 		pubKey.AsJacobian(&pubKeyJ)
 
 		// Add the intermediate public key to the parent public key to
 		// derive the final child key.
 		//
 		// childKey = serP(point(parse256(Il)) + parentKey)
-		var childKeyPubJ btcec.JacobianPoint
-		btcec.AddNonConst(&ilJ, &pubKeyJ, &childKeyPubJ)
+		var childKeyPubJ eunoec.JacobianPoint
+		eunoec.AddNonConst(&ilJ, &pubKeyJ, &childKeyPubJ)
 
 		// Convert the new child public key back to affine coordinates
 		// so we can serialize it in compressed format.
 		childKeyPubJ.ToAffine()
-		childKeyPub := btcec.NewPublicKey(
+		childKeyPub := eunoec.NewPublicKey(
 			&childKeyPubJ.X, &childKeyPubJ.Y,
 		)
 
@@ -376,7 +376,7 @@ func (k *ExtendedKey) Derive(i uint32) (*ExtendedKey, error) {
 
 	// The fingerprint of the parent for the derived child is the first 4
 	// bytes of the RIPEMD160(SHA256(parentPubKey)).
-	parentFP := btcutil.Hash160(k.pubKeyBytes())[:4]
+	parentFP := eunoutil.Hash160(k.pubKeyBytes())[:4]
 	return NewExtendedKey(k.version, childKey, childChainCode, parentFP,
 		k.depth+1, i, isPrivate), nil
 }
@@ -417,7 +417,7 @@ func (k *ExtendedKey) DeriveNonStandard(i uint32) (*ExtendedKey, error) {
 	childChainCode := ilr[len(ilr)/2:]
 
 	ilNum := new(big.Int).SetBytes(il)
-	if ilNum.Cmp(btcec.S256().N) >= 0 || ilNum.Sign() == 0 {
+	if ilNum.Cmp(eunoec.S256().N) >= 0 || ilNum.Sign() == 0 {
 		return nil, ErrInvalidChild
 	}
 
@@ -426,43 +426,43 @@ func (k *ExtendedKey) DeriveNonStandard(i uint32) (*ExtendedKey, error) {
 	if k.isPrivate {
 		keyNum := new(big.Int).SetBytes(k.key)
 		ilNum.Add(ilNum, keyNum)
-		ilNum.Mod(ilNum, btcec.S256().N)
+		ilNum.Mod(ilNum, eunoec.S256().N)
 		childKey = ilNum.Bytes()
 		isPrivate = true
 	} else {
 		var (
-			ilScalar btcec.ModNScalar
-			ilJ      btcec.JacobianPoint
+			ilScalar eunoec.ModNScalar
+			ilJ      eunoec.JacobianPoint
 		)
 		if overflow := ilScalar.SetByteSlice(il); overflow {
 			return nil, ErrInvalidChild
 		}
-		btcec.ScalarBaseMultNonConst(&ilScalar, &ilJ)
+		eunoec.ScalarBaseMultNonConst(&ilScalar, &ilJ)
 
 		if (ilJ.X.IsZero() && ilJ.Y.IsZero()) || ilJ.Z.IsZero() {
 			return nil, ErrInvalidChild
 		}
 
-		pubKey, err := btcec.ParsePubKey(k.key)
+		pubKey, err := eunoec.ParsePubKey(k.key)
 		if err != nil {
 			return nil, err
 		}
 
-		var pubKeyJ btcec.JacobianPoint
+		var pubKeyJ eunoec.JacobianPoint
 		pubKey.AsJacobian(&pubKeyJ)
 
-		var childKeyPubJ btcec.JacobianPoint
-		btcec.AddNonConst(&ilJ, &pubKeyJ, &childKeyPubJ)
+		var childKeyPubJ eunoec.JacobianPoint
+		eunoec.AddNonConst(&ilJ, &pubKeyJ, &childKeyPubJ)
 
 		childKeyPubJ.ToAffine()
-		childKeyPub := btcec.NewPublicKey(
+		childKeyPub := eunoec.NewPublicKey(
 			&childKeyPubJ.X, &childKeyPubJ.Y,
 		)
 
 		childKey = childKeyPub.SerializeCompressed()
 	}
 
-	parentFP := btcutil.Hash160(k.pubKeyBytes())[:4]
+	parentFP := eunoutil.Hash160(k.pubKeyBytes())[:4]
 	return NewExtendedKey(k.version, childKey, childChainCode, parentFP,
 		k.depth+1, i, isPrivate), nil
 }
@@ -522,8 +522,8 @@ func (k *ExtendedKey) Neuter() (*ExtendedKey, error) {
 func (k *ExtendedKey) CloneWithVersion(version []byte) (*ExtendedKey, error) {
 	if len(version) != 4 {
 		// TODO: The semantically correct error to return here is
-		//  ErrInvalidHDKeyID (introduced in btcsuite/btcd#1617). Update the
-		//  error type once available in a stable btcd / chaincfg release.
+		//  ErrInvalidHDKeyID (introduced in MotoAcidic/eunod#1617). Update the
+		//  error type once available in a stable eunod / chaincfg release.
 		return nil, chaincfg.ErrUnknownHDKeyID
 	}
 
@@ -533,29 +533,29 @@ func (k *ExtendedKey) CloneWithVersion(version []byte) (*ExtendedKey, error) {
 		k.depth, k.childNum, k.isPrivate), nil
 }
 
-// ECPubKey converts the extended key to a btcec public key and returns it.
-func (k *ExtendedKey) ECPubKey() (*btcec.PublicKey, error) {
-	return btcec.ParsePubKey(k.pubKeyBytes())
+// ECPubKey converts the extended key to a eunoec public key and returns it.
+func (k *ExtendedKey) ECPubKey() (*eunoec.PublicKey, error) {
+	return eunoec.ParsePubKey(k.pubKeyBytes())
 }
 
-// ECPrivKey converts the extended key to a btcec private key and returns it.
+// ECPrivKey converts the extended key to a eunoec private key and returns it.
 // As you might imagine this is only possible if the extended key is a private
 // extended key (as determined by the IsPrivate function).  The ErrNotPrivExtKey
 // error will be returned if this function is called on a public extended key.
-func (k *ExtendedKey) ECPrivKey() (*btcec.PrivateKey, error) {
+func (k *ExtendedKey) ECPrivKey() (*eunoec.PrivateKey, error) {
 	if !k.isPrivate {
 		return nil, ErrNotPrivExtKey
 	}
 
-	privKey, _ := btcec.PrivKeyFromBytes(k.key)
+	privKey, _ := eunoec.PrivKeyFromBytes(k.key)
 	return privKey, nil
 }
 
 // Address converts the extended key to a standard bitcoin pay-to-pubkey-hash
 // address for the passed network.
-func (k *ExtendedKey) Address(net *chaincfg.Params) (*btcutil.AddressPubKeyHash, error) {
-	pkHash := btcutil.Hash160(k.pubKeyBytes())
-	return btcutil.NewAddressPubKeyHash(pkHash, net)
+func (k *ExtendedKey) Address(net *chaincfg.Params) (*eunoutil.AddressPubKeyHash, error) {
+	pkHash := eunoutil.Hash160(k.pubKeyBytes())
+	return eunoutil.NewAddressPubKeyHash(pkHash, net)
 }
 
 // paddedAppend appends the src byte slice to dst, returning the new slice.
@@ -668,7 +668,7 @@ func NewMaster(seed []byte, net *chaincfg.Params) (*ExtendedKey, error) {
 
 	// Ensure the key in usable.
 	secretKeyNum := new(big.Int).SetBytes(secretKey)
-	if secretKeyNum.Cmp(btcec.S256().N) >= 0 || secretKeyNum.Sign() == 0 {
+	if secretKeyNum.Cmp(eunoec.S256().N) >= 0 || secretKeyNum.Sign() == 0 {
 		return nil, ErrUnusableSeed
 	}
 
@@ -715,13 +715,13 @@ func NewKeyFromString(key string) (*ExtendedKey, error) {
 		// of the order of the secp256k1 curve and not be 0.
 		keyData = keyData[1:]
 		keyNum := new(big.Int).SetBytes(keyData)
-		if keyNum.Cmp(btcec.S256().N) >= 0 || keyNum.Sign() == 0 {
+		if keyNum.Cmp(eunoec.S256().N) >= 0 || keyNum.Sign() == 0 {
 			return nil, ErrUnusableSeed
 		}
 	} else {
 		// Ensure the public key parses correctly and is actually on the
 		// secp256k1 curve.
-		_, err := btcec.ParsePubKey(keyData)
+		_, err := eunoec.ParsePubKey(keyData)
 		if err != nil {
 			return nil, err
 		}

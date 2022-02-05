@@ -10,28 +10,28 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/database"
-	_ "github.com/btcsuite/btcd/database/ffldb"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/database"
+	_ "github.com/MotoAcidic/eunod/database/ffldb"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunod/eunoutil"
 )
 
 var (
-	btcdHomeDir     = btcutil.AppDataDir("btcd", false)
+	eunodHomeDir     = eunoutil.AppDataDir("eunod", false)
 	knownDbTypes    = database.SupportedDrivers()
 	activeNetParams = &chaincfg.MainNetParams
 
 	// Default global config.
 	cfg = &config{
-		DataDir: filepath.Join(btcdHomeDir, "data"),
+		DataDir: filepath.Join(eunodHomeDir, "data"),
 		DbType:  "ffldb",
 	}
 )
 
 // config defines the global configuration options.
 type config struct {
-	DataDir        string `short:"b" long:"datadir" description:"Location of the btcd data directory"`
+	DataDir        string `short:"b" long:"datadir" description:"Location of the eunod data directory"`
 	DbType         string `long:"dbtype" description:"Database backend to use for the Block Chain"`
 	RegressionTest bool   `long:"regtest" description:"Use the regression test network"`
 	SimNet         bool   `long:"simnet" description:"Use the simulation test network"`
@@ -60,7 +60,7 @@ func validDbType(dbType string) bool {
 }
 
 // netName returns the name used when referring to a bitcoin network.  At the
-// time of writing, btcd currently places blocks for testnet version 3 in the
+// time of writing, eunod currently places blocks for testnet version 3 in the
 // data and log directory "testnet", which does not match the Name field of the
 // chaincfg parameters.  This function can be used to override this directory name
 // as "testnet" when the passed active network matches wire.TestNet3.

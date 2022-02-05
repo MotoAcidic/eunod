@@ -7,9 +7,9 @@ package txscript
 import (
 	"sync"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/eunoec/v2/ecdsa"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
 )
 
 // sigCacheEntry represents an entry in the SigCache. Entries within the
@@ -20,7 +20,7 @@ import (
 // simply overwrite the existing entry.
 type sigCacheEntry struct {
 	sig    *ecdsa.Signature
-	pubKey *btcec.PublicKey
+	pubKey *eunoec.PublicKey
 }
 
 // SigCache implements an ECDSA signature verification cache with a randomized
@@ -56,7 +56,7 @@ func NewSigCache(maxEntries uint) *SigCache {
 //
 // NOTE: This function is safe for concurrent access. Readers won't be blocked
 // unless there exists a writer, adding an entry to the SigCache.
-func (s *SigCache) Exists(sigHash chainhash.Hash, sig *ecdsa.Signature, pubKey *btcec.PublicKey) bool {
+func (s *SigCache) Exists(sigHash chainhash.Hash, sig *ecdsa.Signature, pubKey *eunoec.PublicKey) bool {
 	s.RLock()
 	entry, ok := s.validSigs[sigHash]
 	s.RUnlock()
@@ -71,7 +71,7 @@ func (s *SigCache) Exists(sigHash chainhash.Hash, sig *ecdsa.Signature, pubKey *
 //
 // NOTE: This function is safe for concurrent access. Writers will block
 // simultaneous readers until function execution has concluded.
-func (s *SigCache) Add(sigHash chainhash.Hash, sig *ecdsa.Signature, pubKey *btcec.PublicKey) {
+func (s *SigCache) Add(sigHash chainhash.Hash, sig *ecdsa.Signature, pubKey *eunoec.PublicKey) {
 	s.Lock()
 	defer s.Unlock()
 

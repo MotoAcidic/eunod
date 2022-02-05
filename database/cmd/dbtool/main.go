@@ -9,18 +9,18 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/btcsuite/btcd/database"
-	"github.com/btcsuite/btclog"
+	"github.com/MotoAcidic/eunod/database"
+	"github.com/MotoAcidic/eunolog"
 	flags "github.com/jessevdk/go-flags"
 )
 
 const (
-	// blockDbNamePrefix is the prefix for the btcd block database.
+	// blockDbNamePrefix is the prefix for the eunod block database.
 	blockDbNamePrefix = "blocks"
 )
 
 var (
-	log             btclog.Logger
+	log             eunolog.Logger
 	shutdownChannel = make(chan error)
 )
 
@@ -60,11 +60,11 @@ func loadBlockDB() (database.DB, error) {
 // around the fact that deferred functions do not run when os.Exit() is called.
 func realMain() error {
 	// Setup logging.
-	backendLogger := btclog.NewBackend(os.Stdout)
+	backendLogger := eunolog.NewBackend(os.Stdout)
 	defer os.Stdout.Sync()
 	log = backendLogger.Logger("MAIN")
 	dbLog := backendLogger.Logger("BCDB")
-	dbLog.SetLevel(btclog.LevelDebug)
+	dbLog.SetLevel(eunolog.LevelDebug)
 	database.UseLogger(dbLog)
 
 	// Setup the parser options and commands.

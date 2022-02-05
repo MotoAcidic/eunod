@@ -3,18 +3,18 @@
 // license that can be found in the LICENSE file.
 
 /*
-This test file is part of the btcutil package rather than than the
-btcutil_test package so it can bridge access to the internals to properly test
+This test file is part of the eunoutil package rather than than the
+eunoutil_test package so it can bridge access to the internals to properly test
 cases which are either not possible or can't reliably be tested via the public
 interface. The functions are only exported while the tests are being run.
 */
 
-package btcutil
+package eunoutil
 
 import (
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcutil/base58"
-	"github.com/btcsuite/btcd/btcutil/bech32"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/eunoutil/base58"
+	"github.com/MotoAcidic/eunod/eunoutil/bech32"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -99,7 +99,7 @@ func TstAddressTaproot(version byte, program [32]byte,
 func TstAddressPubKey(serializedPubKey []byte, pubKeyFormat PubKeyFormat,
 	netID byte) *AddressPubKey {
 
-	pubKey, _ := btcec.ParsePubKey(serializedPubKey)
+	pubKey, _ := eunoec.ParsePubKey(serializedPubKey)
 	return &AddressPubKey{
 		pubKeyFormat: pubKeyFormat,
 		pubKey:       pubKey,

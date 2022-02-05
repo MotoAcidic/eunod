@@ -2,13 +2,13 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package btcutil_test
+package eunoutil_test
 
 import (
 	"math"
 	"testing"
 
-	. "github.com/btcsuite/btcd/btcutil"
+	. "github.com/MotoAcidic/eunod/eunoutil"
 )
 
 func TestAmountCreation(t *testing.T) {
@@ -119,40 +119,40 @@ func TestAmountUnitConversions(t *testing.T) {
 		s         string
 	}{
 		{
-			name:      "MBTC",
+			name:      "MEUNO",
 			amount:    MaxSatoshi,
-			unit:      AmountMegaBTC,
+			unit:      AmountMegaEUNO,
 			converted: 21,
-			s:         "21 MBTC",
+			s:         "21 MEUNO",
 		},
 		{
-			name:      "kBTC",
+			name:      "kEUNO",
 			amount:    44433322211100,
-			unit:      AmountKiloBTC,
+			unit:      AmountKiloEUNO,
 			converted: 444.33322211100,
-			s:         "444.333222111 kBTC",
+			s:         "444.333222111 kEUNO",
 		},
 		{
-			name:      "BTC",
+			name:      "EUNO",
 			amount:    44433322211100,
-			unit:      AmountBTC,
+			unit:      AmountEUNO,
 			converted: 444333.22211100,
-			s:         "444333.222111 BTC",
+			s:         "444333.222111 EUNO",
 		},
 		{
-			name:      "mBTC",
+			name:      "mEUNO",
 			amount:    44433322211100,
-			unit:      AmountMilliBTC,
+			unit:      AmountMilliEUNO,
 			converted: 444333222.11100,
-			s:         "444333222.111 mBTC",
+			s:         "444333222.111 mEUNO",
 		},
 		{
 
-			name:      "μBTC",
+			name:      "μEUNO",
 			amount:    44433322211100,
-			unit:      AmountMicroBTC,
+			unit:      AmountMicroEUNO,
 			converted: 444333222111.00,
-			s:         "444333222111 μBTC",
+			s:         "444333222111 μEUNO",
 		},
 		{
 
@@ -168,7 +168,7 @@ func TestAmountUnitConversions(t *testing.T) {
 			amount:    44433322211100,
 			unit:      AmountUnit(-1),
 			converted: 4443332.2211100,
-			s:         "4443332.22111 1e-1 BTC",
+			s:         "4443332.22111 1e-1 EUNO",
 		},
 	}
 
@@ -185,15 +185,15 @@ func TestAmountUnitConversions(t *testing.T) {
 			continue
 		}
 
-		// Verify that Amount.ToBTC works as advertised.
-		f1 := test.amount.ToUnit(AmountBTC)
-		f2 := test.amount.ToBTC()
+		// Verify that Amount.ToEUNO works as advertised.
+		f1 := test.amount.ToUnit(AmountEUNO)
+		f2 := test.amount.ToEUNO()
 		if f1 != f2 {
-			t.Errorf("%v: ToBTC does not match ToUnit(AmountBTC): %v != %v", test.name, f1, f2)
+			t.Errorf("%v: ToEUNO does not match ToUnit(AmountEUNO): %v != %v", test.name, f1, f2)
 		}
 
 		// Verify that Amount.String works as advertised.
-		s1 := test.amount.Format(AmountBTC)
+		s1 := test.amount.Format(AmountEUNO)
 		s2 := test.amount.String()
 		if s1 != s2 {
 			t.Errorf("%v: String does not match Format(AmountBitcoin): %v != %v", test.name, s1, s2)
@@ -209,52 +209,52 @@ func TestAmountMulF64(t *testing.T) {
 		res  Amount
 	}{
 		{
-			name: "Multiply 0.1 BTC by 2",
-			amt:  100e5, // 0.1 BTC
+			name: "Multiply 0.1 EUNO by 2",
+			amt:  100e5, // 0.1 EUNO
 			mul:  2,
-			res:  200e5, // 0.2 BTC
+			res:  200e5, // 0.2 EUNO
 		},
 		{
-			name: "Multiply 0.2 BTC by 0.02",
-			amt:  200e5, // 0.2 BTC
+			name: "Multiply 0.2 EUNO by 0.02",
+			amt:  200e5, // 0.2 EUNO
 			mul:  1.02,
-			res:  204e5, // 0.204 BTC
+			res:  204e5, // 0.204 EUNO
 		},
 		{
-			name: "Multiply 0.1 BTC by -2",
-			amt:  100e5, // 0.1 BTC
+			name: "Multiply 0.1 EUNO by -2",
+			amt:  100e5, // 0.1 EUNO
 			mul:  -2,
-			res:  -200e5, // -0.2 BTC
+			res:  -200e5, // -0.2 EUNO
 		},
 		{
-			name: "Multiply 0.2 BTC by -0.02",
-			amt:  200e5, // 0.2 BTC
+			name: "Multiply 0.2 EUNO by -0.02",
+			amt:  200e5, // 0.2 EUNO
 			mul:  -1.02,
-			res:  -204e5, // -0.204 BTC
+			res:  -204e5, // -0.204 EUNO
 		},
 		{
-			name: "Multiply -0.1 BTC by 2",
-			amt:  -100e5, // -0.1 BTC
+			name: "Multiply -0.1 EUNO by 2",
+			amt:  -100e5, // -0.1 EUNO
 			mul:  2,
-			res:  -200e5, // -0.2 BTC
+			res:  -200e5, // -0.2 EUNO
 		},
 		{
-			name: "Multiply -0.2 BTC by 0.02",
-			amt:  -200e5, // -0.2 BTC
+			name: "Multiply -0.2 EUNO by 0.02",
+			amt:  -200e5, // -0.2 EUNO
 			mul:  1.02,
-			res:  -204e5, // -0.204 BTC
+			res:  -204e5, // -0.204 EUNO
 		},
 		{
-			name: "Multiply -0.1 BTC by -2",
-			amt:  -100e5, // -0.1 BTC
+			name: "Multiply -0.1 EUNO by -2",
+			amt:  -100e5, // -0.1 EUNO
 			mul:  -2,
-			res:  200e5, // 0.2 BTC
+			res:  200e5, // 0.2 EUNO
 		},
 		{
-			name: "Multiply -0.2 BTC by -0.02",
-			amt:  -200e5, // -0.2 BTC
+			name: "Multiply -0.2 EUNO by -0.02",
+			amt:  -200e5, // -0.2 EUNO
 			mul:  -1.02,
-			res:  204e5, // 0.204 BTC
+			res:  204e5, // 0.204 EUNO
 		},
 		{
 			name: "Round down",
@@ -270,9 +270,9 @@ func TestAmountMulF64(t *testing.T) {
 		},
 		{
 			name: "Multiply by 0.",
-			amt:  1e8, // 1 BTC
+			amt:  1e8, // 1 EUNO
 			mul:  0,
-			res:  0, // 0 BTC
+			res:  0, // 0 EUNO
 		},
 		{
 			name: "Multiply 1 by 0.5.",

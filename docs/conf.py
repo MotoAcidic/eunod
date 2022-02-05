@@ -18,9 +18,9 @@ from recommonmark.transform import AutoStructify
 
 # -- Project information -----------------------------------------------------
 
-project = 'btcd'
-copyright = '2020, btcd'
-author = 'btcsuite developers'
+project = 'eunod'
+copyright = '2020, eunod'
+author = 'MotoAcidic developers'
 
 # The full version, including alpha/beta/rc tags
 release = 'beta'

@@ -10,7 +10,7 @@ import (
 	"io"
 	"unicode/utf8"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
 )
 
 // MessageHeaderSize is the number of bytes in a bitcoin message header.
@@ -83,8 +83,8 @@ var LatestEncoding = WitnessEncoding
 // and may therefore contain additional or fewer fields than those which
 // are used directly in the protocol encoded message.
 type Message interface {
-	BtcDecode(io.Reader, uint32, MessageEncoding) error
-	BtcEncode(io.Writer, uint32, MessageEncoding) error
+	EunoDecode(io.Reader, uint32, MessageEncoding) error
+	EunoEncode(io.Writer, uint32, MessageEncoding) error
 	Command() string
 	MaxPayloadLength(uint32) uint32
 }
@@ -245,8 +245,8 @@ func discardInput(r io.Reader, n uint32) {
 // WriteMessageN writes a bitcoin Message to w including the necessary header
 // information and returns the number of bytes written.    This function is the
 // same as WriteMessage except it also returns the number of bytes written.
-func WriteMessageN(w io.Writer, msg Message, pver uint32, btcnet BitcoinNet) (int, error) {
-	return WriteMessageWithEncodingN(w, msg, pver, btcnet, BaseEncoding)
+func WriteMessageN(w io.Writer, msg Message, pver uint32, eunonet BitcoinNet) (int, error) {
+	return WriteMessageWithEncodingN(w, msg, pver, eunonet, BaseEncoding)
 }
 
 // WriteMessage writes a bitcoin Message to w including the necessary header
@@ -254,8 +254,8 @@ func WriteMessageN(w io.Writer, msg Message, pver uint32, btcnet BitcoinNet) (in
 // doesn't return the number of bytes written.  This function is mainly provided
 // for backwards compatibility with the original API, but it's also useful for
 // callers that don't care about byte counts.
-func WriteMessage(w io.Writer, msg Message, pver uint32, btcnet BitcoinNet) error {
-	_, err := WriteMessageN(w, msg, pver, btcnet)
+func WriteMessage(w io.Writer, msg Message, pver uint32, eunonet BitcoinNet) error {
+	_, err := WriteMessageN(w, msg, pver, eunonet)
 	return err
 }
 
@@ -265,7 +265,7 @@ func WriteMessage(w io.Writer, msg Message, pver uint32, btcnet BitcoinNet) erro
 // to specify the message encoding format to be used when serializing wire
 // messages.
 func WriteMessageWithEncodingN(w io.Writer, msg Message, pver uint32,
-	btcnet BitcoinNet, encoding MessageEncoding) (int, error) {
+	eunonet BitcoinNet, encoding MessageEncoding) (int, error) {
 
 	totalBytes := 0
 
@@ -281,7 +281,7 @@ func WriteMessageWithEncodingN(w io.Writer, msg Message, pver uint32,
 
 	// Encode the message payload.
 	var bw bytes.Buffer
-	err := msg.BtcEncode(&bw, pver, encoding)
+	err := msg.EunoEncode(&bw, pver, encoding)
 	if err != nil {
 		return totalBytes, err
 	}
@@ -307,7 +307,7 @@ func WriteMessageWithEncodingN(w io.Writer, msg Message, pver uint32,
 
 	// Create header for the message.
 	hdr := messageHeader{}
-	hdr.magic = btcnet
+	hdr.magic = eunonet
 	hdr.command = cmd
 	hdr.length = uint32(lenp)
 	copy(hdr.checksum[:], chainhash.DoubleHashB(payload)[0:4])
@@ -341,7 +341,7 @@ func WriteMessageWithEncodingN(w io.Writer, msg Message, pver uint32,
 // comprise the message.  This function is the same as ReadMessageN except it
 // allows the caller to specify which message encoding is to to consult when
 // decoding wire messages.
-func ReadMessageWithEncodingN(r io.Reader, pver uint32, btcnet BitcoinNet,
+func ReadMessageWithEncodingN(r io.Reader, pver uint32, eunonet BitcoinNet,
 	enc MessageEncoding) (int, Message, []byte, error) {
 
 	totalBytes := 0
@@ -361,7 +361,7 @@ func ReadMessageWithEncodingN(r io.Reader, pver uint32, btcnet BitcoinNet,
 	}
 
 	// Check for messages from the wrong bitcoin network.
-	if hdr.magic != btcnet {
+	if hdr.magic != eunonet {
 		discardInput(r, hdr.length)
 		str := fmt.Sprintf("message from other network [%v]", hdr.magic)
 		return totalBytes, nil, nil, messageError("ReadMessage", str)
@@ -413,9 +413,9 @@ func ReadMessageWithEncodingN(r io.Reader, pver uint32, btcnet BitcoinNet,
 	}
 
 	// Unmarshal message.  NOTE: This must be a *bytes.Buffer since the
-	// MsgVersion BtcDecode function requires it.
+	// MsgVersion EunoDecode function requires it.
 	pr := bytes.NewBuffer(payload)
-	err = msg.BtcDecode(pr, pver, enc)
+	err = msg.EunoDecode(pr, pver, enc)
 	if err != nil {
 		return totalBytes, nil, nil, err
 	}
@@ -428,8 +428,8 @@ func ReadMessageWithEncodingN(r io.Reader, pver uint32, btcnet BitcoinNet,
 // bytes read in addition to the parsed Message and raw bytes which comprise the
 // message.  This function is the same as ReadMessage except it also returns the
 // number of bytes read.
-func ReadMessageN(r io.Reader, pver uint32, btcnet BitcoinNet) (int, Message, []byte, error) {
-	return ReadMessageWithEncodingN(r, pver, btcnet, BaseEncoding)
+func ReadMessageN(r io.Reader, pver uint32, eunonet BitcoinNet) (int, Message, []byte, error) {
+	return ReadMessageWithEncodingN(r, pver, eunonet, BaseEncoding)
 }
 
 // ReadMessage reads, validates, and parses the next bitcoin Message from r for
@@ -438,7 +438,7 @@ func ReadMessageN(r io.Reader, pver uint32, btcnet BitcoinNet) (int, Message, []
 // from ReadMessageN in that it doesn't return the number of bytes read.  This
 // function is mainly provided for backwards compatibility with the original
 // API, but it's also useful for callers that don't care about byte counts.
-func ReadMessage(r io.Reader, pver uint32, btcnet BitcoinNet) (Message, []byte, error) {
-	_, msg, buf, err := ReadMessageN(r, pver, btcnet)
+func ReadMessage(r io.Reader, pver uint32, eunonet BitcoinNet) (Message, []byte, error) {
+	_, msg, buf, err := ReadMessageN(r, pver, eunonet)
 	return msg, buf, err
 }

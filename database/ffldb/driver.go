@@ -7,12 +7,12 @@ package ffldb
 import (
 	"fmt"
 
-	"github.com/btcsuite/btcd/database"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btclog"
+	"github.com/MotoAcidic/eunod/database"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunolog"
 )
 
-var log = btclog.Disabled
+var log = eunolog.Disabled
 
 const (
 	dbType = "ffldb"
@@ -65,7 +65,7 @@ func createDBDriver(args ...interface{}) (database.DB, error) {
 
 // useLogger is the callback provided during driver registration that sets the
 // current logger to the provided one.
-func useLogger(logger btclog.Logger) {
+func useLogger(logger eunolog.Logger) {
 	log = logger
 }
 

@@ -40,3 +40,17 @@ coverage.txt
 btcec/coverage.txt
 btcutil/coverage.txt
 btcutil/psbt/coverage.txt
+
+.vs/eunod/project-colors.json
+
+.vs/eunod/v17/.suo
+
+.vs/eunod/v17/fileList.bin
+
+.vs/eunod/v17/workspaceFileList.bin
+
+.vs/ProjectSettings.json
+
+.vs/slnx.sqlite
+
+.vs/VSWorkspaceState.json

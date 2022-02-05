@@ -12,8 +12,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/wire"
 )
 
 // ScriptFlags is a bitmask defining additional operations or tests that will be
@@ -115,7 +115,7 @@ const (
 )
 
 // halforder is used to tame ECDSA malleability (see BIP0062).
-var halfOrder = new(big.Int).Rsh(btcec.S256().N, 1)
+var halfOrder = new(big.Int).Rsh(eunoec.S256().N, 1)
 
 // Engine is the virtual machine that executes scripts.
 type Engine struct {
@@ -848,7 +848,7 @@ func isStrictPubKeyEncoding(pubKey []byte) bool {
 // the strict encoding requirements if enabled.
 func (vm *Engine) checkPubKeyEncoding(pubKey []byte) error {
 	if vm.hasFlag(ScriptVerifyWitnessPubKeyType) &&
-		vm.isWitnessVersionActive(0) && !btcec.IsCompressedPubKey(pubKey) {
+		vm.isWitnessVersionActive(0) && !eunoec.IsCompressedPubKey(pubKey) {
 
 		str := "only compressed keys are accepted post-segwit"
 		return scriptError(ErrWitnessPubKeyType, str)

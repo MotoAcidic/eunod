@@ -1,9 +1,9 @@
 blockchain
 ==========
 
-[![Build Status](https://github.com/btcsuite/btcd/workflows/Build%20and%20Test/badge.svg)](https://github.com/btcsuite/btcd/actions)
+[![Build Status](https://github.com/MotoAcidic/eunod/workflows/Build%20and%20Test/badge.svg)](https://github.com/MotoAcidic/eunod/actions)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/btcsuite/btcd/blockchain)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/MotoAcidic/eunod/blockchain)
 
 Package blockchain implements bitcoin block handling and chain selection rules.
 The test coverage is currently only around 60%, but will be increasing over
@@ -12,7 +12,7 @@ you are running a POSIX OS, you can run the `cov_report.sh` script for a
 real-time report.  Package blockchain is licensed under the liberal ISC license.
 
 There is an associated blog post about the release of this package
-[here](https://blog.conformal.com/btcchain-the-bitcoin-chain-package-from-bctd/).
+[here](https://blog.conformal.com/eunochain-the-bitcoin-chain-package-from-bctd/).
 
 This package has intentionally been designed so it can be used as a standalone
 package for any projects needing to handle processing of blocks into the bitcoin
@@ -21,7 +21,7 @@ block chain.
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/btcsuite/btcd/blockchain
+$ go get -u github.com/MotoAcidic/eunod/blockchain
 ```
 
 ## Bitcoin Chain Processing Overview
@@ -61,25 +61,25 @@ is by no means exhaustive:
 
 ## Examples
 
-* [ProcessBlock Example](https://pkg.go.dev/github.com/btcsuite/btcd/blockchain#example-BlockChain-ProcessBlock)  
+* [ProcessBlock Example](https://pkg.go.dev/github.com/MotoAcidic/eunod/blockchain#example-BlockChain-ProcessBlock)  
   Demonstrates how to create a new chain instance and use ProcessBlock to
   attempt to add a block to the chain.  This example intentionally
   attempts to insert a duplicate genesis block to illustrate how an invalid
   block is handled.
 
-* [CompactToBig Example](https://pkg.go.dev/github.com/btcsuite/btcd/blockchain#example-CompactToBig)  
+* [CompactToBig Example](https://pkg.go.dev/github.com/MotoAcidic/eunod/blockchain#example-CompactToBig)  
   Demonstrates how to convert the compact "bits" in a block header which
   represent the target difficulty to a big integer and display it using the
   typical hex notation.
 
-* [BigToCompact Example](https://pkg.go.dev/github.com/btcsuite/btcd/blockchain#example-BigToCompact)  
+* [BigToCompact Example](https://pkg.go.dev/github.com/MotoAcidic/eunod/blockchain#example-BigToCompact)  
   Demonstrates how to convert a target difficulty into the
   compact "bits" in a block header which represent that target difficulty.
 
 ## GPG Verification Key
 
 All official release tags are signed by Conformal so users can ensure the code
-has not been tampered with and is coming from the btcsuite developers.  To
+has not been tampered with and is coming from the MotoAcidic developers.  To
 verify the signature perform the following:
 
 - Download the public key from the Conformal website at

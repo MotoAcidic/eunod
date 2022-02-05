@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/wire"
 )
 
 // These variables are the chain proof-of-work limit parameters for each default
@@ -502,7 +502,7 @@ var TestNet3Params = Params{
 	DNSSeeds: []DNSSeed{
 		{"testnet-seed.bitcoin.jonasschnelli.ch", true},
 		{"testnet-seed.bitcoin.schildbach.de", false},
-		{"seed.tbtc.petertodd.org", true},
+		{"seed.teuno.petertodd.org", true},
 		{"testnet-seed.bluematt.me", false},
 	},
 

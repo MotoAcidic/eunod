@@ -1,11 +1,11 @@
-# Controlling and querying btcd via btcctl
+# Controlling and querying eunod via eunoctl
 
-btcctl is a command line utility that can be used to both control and query btcd
-via [RPC](http://www.wikipedia.org/wiki/Remote_procedure_call).  btcd does
+eunoctl is a command line utility that can be used to both control and query eunod
+via [RPC](http://www.wikipedia.org/wiki/Remote_procedure_call).  eunod does
 **not** enable its RPC server by default;  You must configure at minimum both an
 RPC username and password or both an RPC limited username and password:
 
-* btcd.conf configuration file
+* eunod.conf configuration file
 
 ```bash
 [Application Options]
@@ -15,7 +15,7 @@ rpclimituser=mylimituser
 rpclimitpass=Limitedp4ssw0rd
 ```
 
-* btcctl.conf configuration file
+* eunoctl.conf configuration file
 
 ```bash
 [Application Options]
@@ -31,4 +31,4 @@ rpclimituser=mylimituser
 rpclimitpass=Limitedp4ssw0rd
 ```
 
-For a list of available options, run: `$ btcctl --help`
+For a list of available options, run: `$ eunoctl --help`

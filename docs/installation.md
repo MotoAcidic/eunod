@@ -1,6 +1,6 @@
 # Installation
 
-The first step is to install btcd.  See one of the following sections for
+The first step is to install eunod.  See one of the following sections for
 details on how to install on the supported operating systems.
 
 ## Requirements
@@ -10,11 +10,11 @@ details on how to install on the supported operating systems.
 ## GPG Verification Key
 
 All official release tags are signed by Conformal so users can ensure the code
-has not been tampered with and is coming from the btcsuite developers.  To
+has not been tampered with and is coming from the MotoAcidic developers.  To
 verify the signature perform the following:
 
 * Download the Conformal public key:
-  https://raw.githubusercontent.com/btcsuite/btcd/master/release/GIT-GPG-KEY-conformal.txt
+  https://raw.githubusercontent.com/MotoAcidic/eunod/master/release/GIT-GPG-KEY-conformal.txt
 
 * Import the public key into your GPG keyring:
 
@@ -31,8 +31,8 @@ verify the signature perform the following:
 
 ## Windows Installation
 
-* Install the MSI available at: [btcd windows installer](https://github.com/btcsuite/btcd/releases)
-* Launch btcd from the Start Menu
+* Install the MSI available at: [eunod windows installer](https://github.com/MotoAcidic/eunod/releases)
+* Launch eunod from the Start Menu
 
 ## Linux/BSD/MacOSX/POSIX Installation
 
@@ -49,28 +49,28 @@ recommended that `GOPATH` is set to a directory in your home directory such as
 `~/goprojects` to avoid write permission issues.  It is also recommended to add
 `$GOPATH/bin` to your `PATH` at this point.
 
-* Run the following commands to obtain btcd, all dependencies, and install it:
+* Run the following commands to obtain eunod, all dependencies, and install it:
 
 ```bash
-git clone https://github.com/btcsuite/btcd $GOPATH/src/github.com/btcsuite/btcd
-cd $GOPATH/src/github.com/btcsuite/btcd
+git clone https://github.com/MotoAcidic/eunod $GOPATH/src/github.com/MotoAcidic/eunod
+cd $GOPATH/src/github.com/MotoAcidic/eunod
 GO111MODULE=on go install -v . ./cmd/...
 ```
 
-* btcd (and utilities) will now be installed in ```$GOPATH/bin```.  If you did
+* eunod (and utilities) will now be installed in ```$GOPATH/bin```.  If you did
   not already add the bin directory to your system path during Go installation,
   we recommend you do so now.
 
 ## Gentoo Linux Installation
 
 * [Install Layman](https://gitlab.com/bitcoin/gentoo) and enable the Bitcoin overlay.
-* Copy or symlink `/var/lib/layman/bitcoin/Documentation/package.keywords/btcd-live` to `/etc/portage/package.keywords/`
-* Install btcd: `$ emerge net-p2p/btcd`
+* Copy or symlink `/var/lib/layman/bitcoin/Documentation/package.keywords/eunod-live` to `/etc/portage/package.keywords/`
+* Install eunod: `$ emerge net-p2p/eunod`
 
 ## Startup
 
-Typically btcd will run and start downloading the block chain with no extra
+Typically eunod will run and start downloading the block chain with no extra
 configuration necessary, however, there is an optional method to use a
 `bootstrap.dat` file that may speed up the initial block chain download process.
 
-* [Using bootstrap.dat](https://github.com/btcsuite/btcd/blob/master/docs/configuration.md#using-bootstrapdat)
+* [Using bootstrap.dat](https://github.com/MotoAcidic/eunod/blob/master/docs/configuration.md#using-bootstrapdat)

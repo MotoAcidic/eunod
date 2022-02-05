@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/btcsuite/btcd/database/internal/treap"
-	"github.com/btcsuite/goleveldb/leveldb"
-	"github.com/btcsuite/goleveldb/leveldb/iterator"
-	"github.com/btcsuite/goleveldb/leveldb/util"
+	"github.com/MotoAcidic/eunod/database/internal/treap"
+	"github.com/MotoAcidic/goleveldb/leveldb"
+	"github.com/MotoAcidic/goleveldb/leveldb/iterator"
+	"github.com/MotoAcidic/goleveldb/leveldb/util"
 )
 
 const (

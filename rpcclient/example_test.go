@@ -6,7 +6,7 @@ package rpcclient
 
 import (
 	"fmt"
-	"github.com/btcsuite/btcd/btcjson"
+	"github.com/MotoAcidic/eunod/eunojson"
 )
 
 var connCfg = &ConnConfig{
@@ -41,18 +41,18 @@ func ExampleClient_ImportMulti() {
 	}
 	defer client.Shutdown()
 
-	requests := []btcjson.ImportMultiRequest{
+	requests := []eunojson.ImportMultiRequest{
 		{
-			Descriptor: btcjson.String(
+			Descriptor: eunojson.String(
 				"pkh([f34db33f/44'/0'/0']xpub6Cc939fyHvfB9pPLWd3bSyyQFvgKbwhidca49jGCM5Hz5ypEPGf9JVXB4NBuUfPgoHnMjN6oNgdC9KRqM11RZtL8QLW6rFKziNwHDYhZ6Kx/0/*)#ed7px9nu"),
-			Range:     &btcjson.DescriptorRange{Value: []int{0, 100}},
-			Timestamp: btcjson.TimestampOrNow{Value: 0}, // scan from genesis
-			WatchOnly: btcjson.Bool(true),
-			KeyPool:   btcjson.Bool(false),
-			Internal:  btcjson.Bool(false),
+			Range:     &eunojson.DescriptorRange{Value: []int{0, 100}},
+			Timestamp: eunojson.TimestampOrNow{Value: 0}, // scan from genesis
+			WatchOnly: eunojson.Bool(true),
+			KeyPool:   eunojson.Bool(false),
+			Internal:  eunojson.Bool(false),
 		},
 	}
-	opts := &btcjson.ImportMultiOptions{Rescan: true}
+	opts := &eunojson.ImportMultiOptions{Rescan: true}
 
 	resp, err := client.ImportMulti(requests, opts)
 	if err != nil {
@@ -72,7 +72,7 @@ func ExampleClient_DeriveAddresses() {
 
 	addrs, err := client.DeriveAddresses(
 		"pkh([f34db33f/44'/0'/0']xpub6Cc939fyHvfB9pPLWd3bSyyQFvgKbwhidca49jGCM5Hz5ypEPGf9JVXB4NBuUfPgoHnMjN6oNgdC9KRqM11RZtL8QLW6rFKziNwHDYhZ6Kx/0/*)#ed7px9nu",
-		&btcjson.DescriptorRange{Value: []int{0, 2}})
+		&eunojson.DescriptorRange{Value: []int{0, 2}})
 	if err != nil {
 		panic(err)
 	}
@@ -129,7 +129,7 @@ func ExampleClient_GetTxOutSetInfo() {
 		panic(err)
 	}
 
-	fmt.Println(r.TotalAmount.String()) // 20947654.56996054 BTC
+	fmt.Println(r.TotalAmount.String()) // 20947654.56996054 EUNO
 	fmt.Println(r.BestBlock.String())   // 000000000000005f94116250e2407310463c0a7cf950f1af9ebe935b1c0687ab
 	fmt.Println(r.TxOuts)               // 24280607
 	fmt.Println(r.Transactions)         // 9285603

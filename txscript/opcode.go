@@ -15,10 +15,10 @@ import (
 
 	"golang.org/x/crypto/ripemd160"
 
-	"github.com/btcsuite/btcd/btcec/v2"
-	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/MotoAcidic/eunod/eunoec/v2"
+	"github.com/MotoAcidic/eunod/eunoec/v2/ecdsa"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/wire"
 )
 
 // An opcode defines the information related to a txscript opcode.  opfunc, if
@@ -32,9 +32,9 @@ type opcode struct {
 	opfunc func(*opcode, []byte, *Engine) error
 }
 
-// These constants are the values of the official opcodes used on the btc wiki,
+// These constants are the values of the official opcodes used on the euno wiki,
 // in bitcoin core and in most if not all other references and software related
-// to handling BTC scripts.
+// to handling EUNO scripts.
 const (
 	OP_0                   = 0x00 // 0
 	OP_FALSE               = 0x00 // 0 - AKA OP_0
@@ -1930,7 +1930,7 @@ func opcodeCheckSig(op *opcode, data []byte, vm *Engine) error {
 		hash = calcSignatureHash(subScript, hashType, &vm.tx, vm.txIdx)
 	}
 
-	pubKey, err := btcec.ParsePubKey(pkBytes)
+	pubKey, err := eunoec.ParsePubKey(pkBytes)
 	if err != nil {
 		vm.dstack.PushBool(false)
 		return nil
@@ -2173,7 +2173,7 @@ func opcodeCheckMultiSig(op *opcode, data []byte, vm *Engine) error {
 		}
 
 		// Parse the pubkey.
-		parsedPubKey, err := btcec.ParsePubKey(pubKey)
+		parsedPubKey, err := eunoec.ParsePubKey(pubKey)
 		if err != nil {
 			continue
 		}

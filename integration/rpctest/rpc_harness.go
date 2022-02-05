@@ -16,11 +16,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/rpcclient"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/MotoAcidic/eunod/chaincfg"
+	"github.com/MotoAcidic/eunod/chaincfg/chainhash"
+	"github.com/MotoAcidic/eunod/rpcclient"
+	"github.com/MotoAcidic/eunod/wire"
+	"github.com/MotoAcidic/eunod/eunoutil"
 )
 
 const (
@@ -70,10 +70,10 @@ var (
 // Harness to exercise functionality.
 type HarnessTestCase func(r *Harness, t *testing.T)
 
-// Harness fully encapsulates an active btcd process to provide a unified
-// platform for creating rpc driven integration tests involving btcd. The
-// active btcd node will typically be run in simnet mode in order to allow for
-// easy generation of test blockchains.  The active btcd process is fully
+// Harness fully encapsulates an active eunod process to provide a unified
+// platform for creating rpc driven integration tests involving eunod. The
+// active eunod node will typically be run in simnet mode in order to allow for
+// easy generation of test blockchains.  The active eunod process is fully
 // managed by Harness, which handles the necessary initialization, and teardown
 // of the process along with any temporary directories created as a result.
 // Multiple Harness instances may be run concurrently, in order to allow for
@@ -108,7 +108,7 @@ type Harness struct {
 // New creates and initializes new instance of the rpc test harness.
 // Optionally, websocket handlers and a specified configuration may be passed.
 // In the case that a nil config is passed, a default configuration will be
-// used. If a custom btcd executable is specified, it will be used to start the
+// used. If a custom eunod executable is specified, it will be used to start the
 // harness node. Otherwise a new binary is built on demand.
 //
 // NOTE: This function is safe for concurrent access.
@@ -188,7 +188,7 @@ func New(activeNet *chaincfg.Params, handlers *rpcclient.NotificationHandlers,
 	// callback.
 	if handlers.OnFilteredBlockConnected != nil {
 		obc := handlers.OnFilteredBlockConnected
-		handlers.OnFilteredBlockConnected = func(height int32, header *wire.BlockHeader, filteredTxns []*btcutil.Tx) {
+		handlers.OnFilteredBlockConnected = func(height int32, header *wire.BlockHeader, filteredTxns []*eunoutil.Tx) {
 			wallet.IngestBlock(height, header, filteredTxns)
 			obc(height, header, filteredTxns)
 		}
@@ -232,7 +232,7 @@ func New(activeNet *chaincfg.Params, handlers *rpcclient.NotificationHandlers,
 // NOTE: This method and TearDown should always be called from the same
 // goroutine as they are not concurrent safe.
 func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
-	// Start the btcd node itself. This spawns a new process which will be
+	// Start the eunod node itself. This spawns a new process which will be
 	// managed
 	if err := h.node.start(); err != nil {
 		return err
@@ -245,12 +245,12 @@ func (h *Harness) SetUp(createTestChain bool, numMatureOutputs uint32) error {
 
 	// Filter transactions that pay to the coinbase associated with the
 	// wallet.
-	filterAddrs := []btcutil.Address{h.wallet.coinbaseAddr}
+	filterAddrs := []eunoutil.Address{h.wallet.coinbaseAddr}
 	if err := h.Client.LoadTxFilter(true, filterAddrs, nil); err != nil {
 		return err
 	}
 
-	// Ensure btcd properly dispatches our registered call-back for each new
+	// Ensure eunod properly dispatches our registered call-back for each new
 	// block. Otherwise, the memWallet won't function properly.
 	if err := h.Client.NotifyBlocks(); err != nil {
 		return err
@@ -323,7 +323,7 @@ func (h *Harness) TearDown() error {
 	return h.tearDown()
 }
 
-// connectRPCClient attempts to establish an RPC connection to the created btcd
+// connectRPCClient attempts to establish an RPC connection to the created eunod
 // process belonging to this Harness instance. If the initial connection
 // attempt fails, this function will retry h.maxConnRetries times, backing off
 // the time between subsequent attempts. If after h.maxConnRetries attempts,
@@ -369,7 +369,7 @@ func (h *Harness) connectRPCClient() error {
 // wallet.
 //
 // This function is safe for concurrent access.
-func (h *Harness) NewAddress() (btcutil.Address, error) {
+func (h *Harness) NewAddress() (eunoutil.Address, error) {
 	return h.wallet.NewAddress()
 }
 
@@ -377,7 +377,7 @@ func (h *Harness) NewAddress() (btcutil.Address, error) {
 // wallet.
 //
 // This function is safe for concurrent access.
-func (h *Harness) ConfirmedBalance() btcutil.Amount {
+func (h *Harness) ConfirmedBalance() eunoutil.Amount {
 	return h.wallet.ConfirmedBalance()
 }
 
@@ -387,7 +387,7 @@ func (h *Harness) ConfirmedBalance() btcutil.Amount {
 //
 // This function is safe for concurrent access.
 func (h *Harness) SendOutputs(targetOutputs []*wire.TxOut,
-	feeRate btcutil.Amount) (*chainhash.Hash, error) {
+	feeRate eunoutil.Amount) (*chainhash.Hash, error) {
 
 	return h.wallet.SendOutputs(targetOutputs, feeRate)
 }
@@ -398,7 +398,7 @@ func (h *Harness) SendOutputs(targetOutputs []*wire.TxOut,
 //
 // This function is safe for concurrent access.
 func (h *Harness) SendOutputsWithoutChange(targetOutputs []*wire.TxOut,
-	feeRate btcutil.Amount) (*chainhash.Hash, error) {
+	feeRate eunoutil.Amount) (*chainhash.Hash, error) {
 
 	return h.wallet.SendOutputsWithoutChange(targetOutputs, feeRate)
 }
@@ -415,7 +415,7 @@ func (h *Harness) SendOutputsWithoutChange(targetOutputs []*wire.TxOut,
 //
 // This function is safe for concurrent access.
 func (h *Harness) CreateTransaction(targetOutputs []*wire.TxOut,
-	feeRate btcutil.Amount, change bool) (*wire.MsgTx, error) {
+	feeRate eunoutil.Amount, change bool) (*wire.MsgTx, error) {
 
 	return h.wallet.CreateTransaction(targetOutputs, feeRate, change)
 }
@@ -452,8 +452,8 @@ func (h *Harness) P2PAddress() string {
 // blockTime parameter if one doesn't wish to set a custom time.
 //
 // This function is safe for concurrent access.
-func (h *Harness) GenerateAndSubmitBlock(txns []*btcutil.Tx, blockVersion int32,
-	blockTime time.Time) (*btcutil.Block, error) {
+func (h *Harness) GenerateAndSubmitBlock(txns []*eunoutil.Tx, blockVersion int32,
+	blockTime time.Time) (*eunoutil.Block, error) {
 	return h.GenerateAndSubmitBlockWithCustomCoinbaseOutputs(txns,
 		blockVersion, blockTime, []wire.TxOut{})
 }
@@ -473,8 +473,8 @@ func (h *Harness) GenerateAndSubmitBlock(txns []*btcutil.Tx, blockVersion int32,
 //
 // This function is safe for concurrent access.
 func (h *Harness) GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
-	txns []*btcutil.Tx, blockVersion int32, blockTime time.Time,
-	mineTo []wire.TxOut) (*btcutil.Block, error) {
+	txns []*eunoutil.Tx, blockVersion int32, blockTime time.Time,
+	mineTo []wire.TxOut) (*eunoutil.Block, error) {
 
 	h.Lock()
 	defer h.Unlock()
@@ -491,7 +491,7 @@ func (h *Harness) GenerateAndSubmitBlockWithCustomCoinbaseOutputs(
 	if err != nil {
 		return nil, err
 	}
-	prevBlock := btcutil.NewBlock(mBlock)
+	prevBlock := eunoutil.NewBlock(mBlock)
 	prevBlock.SetHeight(prevBlockHeight)
 
 	// Create a new block including the specified transactions
@@ -531,7 +531,7 @@ func generateListeningAddresses() (string, string) {
 
 // baseDir is the directory path of the temp directory for all rpctest files.
 func baseDir() (string, error) {
-	dirPath := filepath.Join(os.TempDir(), "btcd", "rpctest")
+	dirPath := filepath.Join(os.TempDir(), "eunod", "rpctest")
 	err := os.MkdirAll(dirPath, 0755)
 	return dirPath, err
 }
